@@ -111,7 +111,7 @@ public class NSGAII_Surrogate extends Algorithm {
       population.add(newSolution);
     } //for   
     
-    population.printObjectivesToFile("./test/POPULATION");
+    population.printObjectivesToFile("POPULATION");
     
     parentSolution1 = new Ranking(population).getSubfront(0).get(0); 
     parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
@@ -119,7 +119,7 @@ public class NSGAII_Surrogate extends Algorithm {
     	parentSolution1 = (Solution) selectionOperator.execute(population);
   		parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
     }
-    parentPopulation.printObjectivesToFile("./test/PARENTS1");
+    parentPopulation.printObjectivesToFile("PARENTS1");
     
     // Generations 
     while (evaluations < maxEvaluations) {
@@ -151,9 +151,9 @@ public class NSGAII_Surrogate extends Algorithm {
         		parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
         		while(parentPopulation.size() < 2) {
         			parentSolution1 = (Solution) selectionOperator.execute(population);
-          		parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
+        			parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
         		}
-        		parentPopulation.printObjectivesToFile("test/PARENTS" + evaluations);
+        		parentPopulation.printObjectivesToFile("PARENTS" + evaluations);
         		parents[0] = parentSolution1;
         		parents[1] = (Solution) selectionOperator.execute(parentPopulation);
         		Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);
@@ -240,7 +240,7 @@ public class NSGAII_Surrogate extends Algorithm {
     Ranking ranking = new Ranking(population);
     ranking.getSubfront(0).printFeasibleFUN("FUN_NSGAII") ;
     
-    population.printObjectivesToFile("test/FINALPARENTS");
+    population.printObjectivesToFile("FINALPARENTS");
 
     return ranking.getSubfront(0);
   } // execute
