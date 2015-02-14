@@ -49,6 +49,11 @@ public class BinaryTournament2 extends Selection {
    *  index_ stores the actual index for selection
    */
   private int index_ = 0;
+  
+  /**
+   * populationSize_ stores the actual size of the population
+   */
+  private int populationSize_ = 0;
     
   /**
    * Constructor
@@ -69,17 +74,23 @@ public class BinaryTournament2 extends Selection {
   public Object execute(Object object)    
   {
     SolutionSet population = (SolutionSet)object;
-    if (index_ == 0) //Create the permutation
+    if(populationSize_ == 0) {
+    	populationSize_ = population.size();
+    }
+    
+    if (index_ == 0 || populationSize_ != population.size()) //Create the permutation
     {
-      a_= (new jmetal.util.PermutationUtility()).intPermutation(population.size());
+      populationSize_ = population.size();
+      index_ = 0;
+      a_= (new jmetal.util.PermutationUtility()).intPermutation(populationSize_);
     }
             
-        
+    System.out.println("POPsize:" + population.size());    
     Solution solution1,solution2;
-    solution1 = population.get(a_[index_]);
-    solution2 = population.get(a_[index_+1]);
+    solution1 = population.get(a_[index_]%populationSize_);
+	solution2 = population.get(a_[(index_+1)%populationSize_]);
         
-    index_ = (index_ + 2) % population.size();
+    index_ = (index_ + 2) % populationSize_;
         
     int flag = dominance_.compare(solution1,solution2);
     if (flag == -1)

@@ -1,2 +1,3 @@
 - added realSolutions to problem.java
+- added populationSize_ to binaryTournament2.java and changed the first few lines
 
