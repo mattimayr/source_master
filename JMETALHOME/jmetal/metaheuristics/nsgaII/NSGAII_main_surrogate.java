@@ -157,8 +157,11 @@ public class NSGAII_main_surrogate {
 //    System.out.println(population.size());
 //    Ranking ranked = new Ranking(population);
     
-    realSolutions.printObjectivesToFile("TEST1000");
-    ranked.printObjectivesToFile("TEST1001");
+    realSolutions.printObjectivesToFile("POPULATION");
+ 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
+    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
+    }
+    
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");

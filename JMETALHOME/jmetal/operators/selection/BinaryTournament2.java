@@ -85,7 +85,6 @@ public class BinaryTournament2 extends Selection {
       a_= (new jmetal.util.PermutationUtility()).intPermutation(populationSize_);
     }
             
-    System.out.println("POPsize:" + population.size());    
     Solution solution1,solution2;
     solution1 = population.get(a_[index_]%populationSize_);
 	solution2 = population.get(a_[(index_+1)%populationSize_]);
