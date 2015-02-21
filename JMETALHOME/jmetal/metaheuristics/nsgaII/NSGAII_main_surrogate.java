@@ -105,7 +105,7 @@ public class NSGAII_main_surrogate {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	problem = new EBEsSurrogateMethod1("Real", maxEvaluations);
+    	problem = new EBEsSurrogateMethod2("Real",maxEvaluations);
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");

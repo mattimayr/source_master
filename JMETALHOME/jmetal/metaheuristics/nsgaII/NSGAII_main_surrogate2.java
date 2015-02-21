@@ -87,7 +87,7 @@ public class NSGAII_main_surrogate2 {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 100;
+    int maxEvaluations = 200;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -105,7 +105,7 @@ public class NSGAII_main_surrogate2 {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	problem = new EBEs("Real");
+    	problem = new EBEsSurrogateMethod2("Real", maxEvaluations);
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
@@ -119,7 +119,7 @@ public class NSGAII_main_surrogate2 {
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",50);
+    algorithm.setInputParameter("populationSize",100);
     algorithm.setInputParameter("maxEvaluations",maxEvaluations);
 
     // Mutation and Crossover for Real codification 
@@ -159,6 +159,11 @@ public class NSGAII_main_surrogate2 {
     System.out.println("Number of Solutions " + realSolutions.size());
     realSolutions.printObjectivesToFile("TEST1000");
    // ranked.printObjectivesToFile("TEST1001");
+    
+    realSolutions.printObjectivesToFile("POPULATION");
+ 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
+    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
+    }
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
