@@ -1,3 +1,5 @@
 - added realSolutions to problem.java
 - added populationSize_ to binaryTournament2.java and changed the first few lines
+-changed Ranking to not use constraints!
+-dominance comperator removed constraints
 

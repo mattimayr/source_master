@@ -102,11 +102,11 @@ public class NSGAII_main {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	//problem = new EBEs("Real");
+      problem = new EBEs("Real");
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
-    	problem = new ZDT3("ArrayReal", 30);
+      //problem = new ZDT3("ArrayReal", 30);
       //problem = new ConstrEx("Real");
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
@@ -116,9 +116,9 @@ public class NSGAII_main {
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",300);
-    algorithm.setInputParameter("maxEvaluations",2000000);
-
+    algorithm.setInputParameter("populationSize",100);
+    algorithm.setInputParameter("maxEvaluations", 200);
+    
     // Mutation and Crossover for Real codification 
     parameters = new HashMap() ;
     parameters.put("probability", 0.9) ;
@@ -146,6 +146,11 @@ public class NSGAII_main {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
+    Ranking rank = new Ranking(population);
+    
+    for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
+    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
+    }
        
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");

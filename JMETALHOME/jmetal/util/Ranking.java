@@ -125,9 +125,10 @@ public class Ranking {
     for (int p = 0; p < (solutionSet_.size()-1); p++) {
       // For all q individuals , calculate if p dominates q or vice versa
       for (int q = p+1; q < solutionSet_.size(); q++) {
-        flagDominate =constraint_.compare(solutionSet.get(p),solutionSet.get(q));
+        //flagDominate =constraint_.compare(solutionSet.get(p),solutionSet.get(q));
+    	  flagDominate = dominance_.compare(solutionSet.get(p),solutionSet.get(q));
         if (flagDominate == 0) {
-          flagDominate =dominance_.compare(solutionSet.get(p),solutionSet.get(q));
+          
         }
         if (flagDominate == -1)
         {
