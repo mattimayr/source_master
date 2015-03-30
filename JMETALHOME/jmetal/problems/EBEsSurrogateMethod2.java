@@ -987,16 +987,16 @@ public class EBEsSurrogateMethod2 extends Problem {
 	    		if(modelComputeCounter > 0) {
 		    		if(useLinear) {
 		    			sol1 = surrogate1.useLinearRegression(solution);
-		        	sol2 = surrogate2.useLinearRegression(solution);
-		        	solution.setObjective(0, sol1);
-		        	solution.setObjective(1, sol2);
-		        	modelComputeCounter--;
+			        	sol2 = surrogate2.useLinearRegression(solution);
+			        	solution.setObjective(0, sol1);
+			        	solution.setObjective(1, sol2);
+			        	modelComputeCounter--;
 		    		} else {
 		    			sol1 = surrogate1.useNeuralNetwork(solution);
-		        	sol2 = surrogate2.useNeuralNetwork(solution);
-		        	solution.setObjective(0, sol1);
-		        	solution.setObjective(1, sol2);
-		        	modelComputeCounter--;
+			        	sol2 = surrogate2.useNeuralNetwork(solution);
+			        	solution.setObjective(0, sol1);
+			        	solution.setObjective(1, sol2);
+			        	modelComputeCounter--;
 		    		}
 	    	} else {
 	    		realComputeCounter = realInitialCounter;

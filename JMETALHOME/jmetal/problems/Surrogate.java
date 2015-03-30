@@ -27,7 +27,7 @@ public class Surrogate {
 	private MultilayerPerceptron nnModel;
 	
 	private SolutionSet realSolutions;
-	private int[] classifier;
+	private int[][] classifier;
 	
 	private Map<SolutionSet, Integer> classifiedSolutions; 
 	private DominanceComparator comperator;
@@ -86,6 +86,14 @@ public class Surrogate {
 				e.printStackTrace();
 			}
 		}
+		return sol;
+	}
+	
+	public Solution useDominanceComperation(int numberOfObjectives) {
+		Solution sol = new Solution(numberOfObjectives);
+		
+		
+		
 		return sol;
 	}
 	
@@ -175,6 +183,14 @@ public class Surrogate {
 	public void setSolutionSize(int solutionSize) {
 		this.solutionSize = solutionSize;
 	}
+	public Map<SolutionSet, Integer> getClassifiedSolutions() {
+		return classifiedSolutions;
+	}
+
+	public void setClassifiedSolutions(Map<SolutionSet, Integer> classifiedSolutions) {
+		this.classifiedSolutions = classifiedSolutions;
+	}
+
 	public void addSolution(Solution solution) {
 		if(realSolutions == null) {
 			realSolutions =  new SolutionSet(10000); // TODO!!!
@@ -184,21 +200,23 @@ public class Surrogate {
 	
 	public void classifySolutions() {
 		if(classifier == null) {
-			classifier = new int[realSolutions.size()];
+			classifier = new int[realSolutions.size()][realSolutions.size()];
 		} else if(comperator == null) {
 			comperator = new DominanceComparator();
 		}	else {
 			SolutionSet comparedSolutions = new SolutionSet(2);
-			for(int i = 0; i < realSolutions.size() - 1; i++) {
+			for(int i = 0; i < realSolutions.size(); i++) {
 				Solution sol1 = realSolutions.get(i);
-				Solution sol2 = realSolutions.get(i + 1);
-				int flag = comperator.compare(sol1, sol2);
-				System.out.println("Flag = " + flag);
-				classifier[i] = flag;
-				comparedSolutions.clear();
-				comparedSolutions.add(sol1);
-				comparedSolutions.add(sol2);
-				classifiedSolutions.put(comparedSolutions, flag);
+				for(int j = 0; j < realSolutions.size(); j++) {
+					Solution sol2 = realSolutions.get(j);
+					int flag = comperator.compare(sol1, sol2);
+					System.out.println("Flag = " + flag);
+					classifier[i][j] = flag;
+					comparedSolutions.clear();
+					comparedSolutions.add(sol1);
+					comparedSolutions.add(sol2);
+					classifiedSolutions.put(comparedSolutions, flag);
+				}				
 			}
 		}
 	}

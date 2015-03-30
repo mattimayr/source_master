@@ -10,6 +10,8 @@ package jmetal.problems;
 
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +19,7 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import jmetal.core.Problem;
 import jmetal.core.Solution;
+import jmetal.core.SolutionSet;
 import jmetal.core.SolutionType;
 import jmetal.core.Variable;
 import jmetal.encodings.solutionType.ArrayRealSolutionType;
@@ -884,8 +887,8 @@ public class EBEsSurrogateMethod3 extends Problem {
   	
     //double [] fx = new double[numberOfObjectives_] ; // Objective Functions
     
- 		double [] fx = new double[1] ;
- 		double sol = 0;
+ 		
+ 	Map<SolutionSet, Integer> classifiedSolutions = new HashMap<SolutionSet, Integer>();
     
     EBEsElementsTopology(solution); // transforma geometria a caracterÃ­sticas mecÃ¡nicas
 
@@ -901,7 +904,9 @@ public class EBEsSurrogateMethod3 extends Problem {
     } else {   
     	System.out.println("Classifying solutions...");
     	surrogate.classifySolutions();
+    	
     }
+    
 		
     numberOfEval_++;
 
