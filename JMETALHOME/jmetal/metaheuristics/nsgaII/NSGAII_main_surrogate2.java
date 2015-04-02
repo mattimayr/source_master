@@ -87,7 +87,7 @@ public class NSGAII_main_surrogate2 {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 1000;
+    int maxEvaluations = 200;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -119,7 +119,7 @@ public class NSGAII_main_surrogate2 {
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",200);
+    algorithm.setInputParameter("populationSize",100);
     algorithm.setInputParameter("maxEvaluations",maxEvaluations);
 
     // Mutation and Crossover for Real codification 
@@ -149,20 +149,20 @@ public class NSGAII_main_surrogate2 {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
+    
     SolutionSet realSolutions = new SolutionSet(maxEvaluations);
     realSolutions = problem.getRealSolutions();
     Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-//    System.out.println(population.size());
-//    Ranking ranked = new Ranking(population);
+    //ranked.printObjectivesToFile("RANK0");
+
     System.out.println("Number of Solutions " + realSolutions.size());
-   // ranked.printObjectivesToFile("TEST1001");
-    
-    realSolutions.printObjectivesToFile("POPULATION");
- 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
-    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
-    }
+  
+//    realSolutions.printObjectivesToFile("POPULATION");
+// 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
+//    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
+//    }
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -182,5 +182,9 @@ public class NSGAII_main_surrogate2 {
       int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
       logger_.info("Speed      : " + evaluations + " evaluations") ;      
     } // if
+    
+    logger_.info("Quality indicators") ;
+    indicators = new QualityIndicator(problem, "RANK0");
+    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
 } // NSGAII_main
