@@ -914,8 +914,8 @@ public class EBEsSurrogateMethod1 extends Problem {
     	}
     } else {   
     	// use linear regression to compute new solutions  	
-    	sol1 = surrogate1.useNeuralNetwork(solution);
-    	sol2 = surrogate2.useNeuralNetwork(solution);
+    	sol1 = surrogate1.useLinearRegression(solution);
+    	sol2 = surrogate2.useLinearRegression(solution);
     	solution.setObjective(0, sol1);
     	solution.setObjective(1, sol2);
     	computeCounter--;

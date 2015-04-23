@@ -701,9 +701,9 @@ public class EBEsSurrogateMethod2 extends Problem {
       surrogate1 = new Surrogate();
       surrogate2 = new Surrogate();
       realSolutions = new SolutionSet(maxEvaluations_);
-      modelInitalCounter = 100;
+      modelInitalCounter = 1000;
       modelComputeCounter = modelInitalCounter;
-      realInitialCounter = 20;
+      realInitialCounter = 100;
       realComputeCounter = realInitialCounter;
       useLinear = false;
       useNeural = false;
