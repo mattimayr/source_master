@@ -730,11 +730,9 @@ public class EBEsSurrogateMethod2 extends Problem {
               System.out.println("  OF1:Weight - OF2:Deflections - OF3:Stress squared error");
           }
           break;
-      }
- 
-      
+      }   
 
-      System.out.println("Algorithm configuration: ");
+    System.out.println("Algorithm configuration: ");
 
       //Fill lower and upper limits
     lowerLimit_ = new double[numberOfVariables_];
@@ -925,7 +923,7 @@ public class EBEsSurrogateMethod2 extends Problem {
     EBEsElementsTopology(solution); // transforma geometria a caracterÃ­sticas mecÃ¡nicas
 
     //EBEsCalculus(); //  metodo matricial de la rigidez para estructuras espaciales (3D)
-        
+    
     if(numberOfEval_ >= maxEvaluations_ - maxEvaluations_*0.1) {
     	evaluateAndSet(solution);
     	realSolutions.add(solution);
@@ -935,8 +933,8 @@ public class EBEsSurrogateMethod2 extends Problem {
     	surrogate1.fillTrainSet(0, solution);
     	surrogate2.fillTrainSet(1, solution);
     	if(realComputeCounter % 4 == 0) {
-    		surrogate1.addSolution(solution);
-    		surrogate2.addSolution(solution);
+    		surrogate1.addRealSolution(solution);
+    		surrogate2.addRealSolution(solution);
     	}
     	realComputeCounter--;
     	useLinear = false;
@@ -976,6 +974,7 @@ public class EBEsSurrogateMethod2 extends Problem {
 	    	errorObjective1 = errorObjective1/surrogate1.getRealSolutions().size();
 	    	errorObjective2 = errorObjective2/surrogate2.getRealSolutions().size();
 	    	errorNeural = (errorObjective1 + errorObjective2) / 2;
+	    	
 	    	if(errorLinear < errorNeural) {
 	    		useLinear = true;
 	    		System.out.println("Linear Regression got better error -> use Linear Regression...");
@@ -986,21 +985,32 @@ public class EBEsSurrogateMethod2 extends Problem {
     	} else {
 	    		if(modelComputeCounter > 0) {
 		    		if(useLinear) {
+		    			long initTime = System.currentTimeMillis();
 		    			sol1 = surrogate1.useLinearRegression(solution);
 			        	sol2 = surrogate2.useLinearRegression(solution);
 			        	solution.setObjective(0, sol1);
 			        	solution.setObjective(1, sol2);
 			        	modelComputeCounter--;
+			        	long estimatedTime = System.currentTimeMillis() - initTime;
+			        	System.out.println("One Model evaluation tooks: " + estimatedTime + "ms");
+			        	
 		    		} else {
+		    			long initTime = System.currentTimeMillis();
 		    			sol1 = surrogate1.useNeuralNetwork(solution);
 			        	sol2 = surrogate2.useNeuralNetwork(solution);
 			        	solution.setObjective(0, sol1);
 			        	solution.setObjective(1, sol2);
 			        	modelComputeCounter--;
+			        	long estimatedTime = System.currentTimeMillis() - initTime;
+			        	System.out.println("One Model evaluation tooks: " + estimatedTime + "ms");
 		    		}
 	    	} else {
 	    		realComputeCounter = realInitialCounter;
 	    		System.out.println(modelInitalCounter + " model evaluations done...");
+	    		surrogate1.emptyTrainSet();
+	    		surrogate2.emptyTrainSet();
+	    		surrogate1.emptyRealSolutions();
+	    		surrogate2.emptyRealSolutions();
 	    	}
     	}
     }

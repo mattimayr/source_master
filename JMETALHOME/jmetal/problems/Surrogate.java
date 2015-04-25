@@ -115,7 +115,7 @@ public class Surrogate {
 			currentInstance.setDataset(trainSet);
 			//fill the currentInstance with the decision variable values
 			fillXAttributes(currentInstance, solution);
-			//save the value of the objective function tp the attribute and add the instance to the data set
+			//save the value of the objective function to the attribute and add the instance to the data set
 			currentInstance.setValue(currentInstance.attribute(currentInstance.numAttributes() - 1), solution.getObjective(numberOfObjectiveFunction));
 			trainSet.add(currentInstance);
 			//set the class value of the data set to the objective function variable
@@ -159,12 +159,16 @@ public class Surrogate {
 	}
 
 	public void setTrainSet(Instances trainSet) {
-		if(trainSet == null) {
+		if(this.trainSet == null) {
 			this.trainSet = new Instances(trainSet);
 		}
 		this.trainSet = trainSet;
 	}
 
+	public void emptyTrainSet() {
+		this.trainSet = null;
+	}
+	
 	public SolutionSet getRealSolutions() {
 		if(realSolutions == null) {
 			return null;
@@ -172,7 +176,7 @@ public class Surrogate {
 		return realSolutions;
 		}
 	}
-
+	
 	public void setRealSolutions(SolutionSet realSolutions) {
 		this.realSolutions = realSolutions;
 	}
@@ -191,11 +195,15 @@ public class Surrogate {
 		this.classifiedSolutions = classifiedSolutions;
 	}
 
-	public void addSolution(Solution solution) {
+	public void addRealSolution(Solution solution) {
 		if(realSolutions == null) {
 			realSolutions =  new SolutionSet(10000); // TODO!!!
 		}
 		this.realSolutions.add(solution);
+	}
+	
+	public void emptyRealSolutions() {
+		this.realSolutions = null;
 	}
 	
 	public void classifySolutions() {

@@ -899,7 +899,7 @@ public class EBEsSurrogateMethod3 extends Problem {
     	evaluateAndSet(solution);
     } else if(numberOfInitialSolutions > 0) {
     	evaluateAndSet(solution);
-    	surrogate.addSolution(solution);
+    	surrogate.addRealSolution(solution);
     	numberOfInitialSolutions--;
     } else {   
     	System.out.println("Classifying solutions...");
