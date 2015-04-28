@@ -1,0 +1,3 @@
+set term png
+set output "NSGAII_Surrogate_Comparism"
+plot "RANK0_Problem", "RANK0_NSSM1P", "RANK0_NSSM1L", "RANK0_NSSM2"

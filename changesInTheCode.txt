@@ -3,3 +3,5 @@
 -changed Ranking to not use constraints!
 -dominance comperator removed constraints
 
+-SM2 changed trainingSet and RealSet to 0 after one run!
+

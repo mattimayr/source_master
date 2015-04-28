@@ -87,7 +87,7 @@ public class NSGAII_main_surrogate2 {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 200;
+    int maxEvaluations = 10000;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -119,7 +119,7 @@ public class NSGAII_main_surrogate2 {
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",100);
+    algorithm.setInputParameter("populationSize",1000);
     algorithm.setInputParameter("maxEvaluations",maxEvaluations);
 
     // Mutation and Crossover for Real codification 
@@ -155,7 +155,7 @@ public class NSGAII_main_surrogate2 {
     Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-    //ranked.printObjectivesToFile("RANK0");
+    ranked.printObjectivesToFile("RANK0_NSSM2");
 
     System.out.println("Number of Solutions " + realSolutions.size());
   
@@ -184,7 +184,7 @@ public class NSGAII_main_surrogate2 {
     } // if
     
     logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0");
+    indicators = new QualityIndicator(problem, "RANK0_Problem");
     logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
 } // NSGAII_main

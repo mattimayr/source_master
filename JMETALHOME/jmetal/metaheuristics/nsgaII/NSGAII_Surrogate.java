@@ -119,7 +119,7 @@ public class NSGAII_Surrogate extends Algorithm {
     	parentSolution1 = (Solution) selectionOperator.execute(population);
   		parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
     }
-    parentPopulation.printObjectivesToFile("PARENTS1");
+    //parentPopulation.printObjectivesToFile("PARENTS1");
     
     // Generations 
     while (evaluations < maxEvaluations) {
@@ -153,7 +153,7 @@ public class NSGAII_Surrogate extends Algorithm {
         			parentSolution1 = (Solution) selectionOperator.execute(population);
         			parentPopulation = getParentPopulation(solutionRange, population, parentSolution1);
         		}
-        		parentPopulation.printObjectivesToFile("PARENTS" + evaluations);
+        		//parentPopulation.printObjectivesToFile("PARENTS" + evaluations);
         		parents[0] = parentSolution1;
         		parents[1] = (Solution) selectionOperator.execute(parentPopulation);
         		Solution[] offSpring = (Solution[]) crossoverOperator.execute(parents);

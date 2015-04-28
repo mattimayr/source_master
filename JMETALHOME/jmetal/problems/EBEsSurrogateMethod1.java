@@ -914,15 +914,14 @@ public class EBEsSurrogateMethod1 extends Problem {
     	}
     } else {   
     	// use linear regression to compute new solutions  	
-    	long initTime = System.currentTimeMillis();
+    	//long initTime = System.currentTimeMillis();
 		sol1 = surrogate1.useLinearRegression(solution);
     	sol2 = surrogate2.useLinearRegression(solution);
     	solution.setObjective(0, sol1);
     	solution.setObjective(1, sol2);
     	computeCounter--;
-    	long estimatedTime = System.currentTimeMillis() - initTime;
-    	System.out.println("One Model evaluation tooks: " + estimatedTime + "ms");
-    	
+    	//long estimatedTime = System.currentTimeMillis() - initTime;
+
     	if(computeCounter == 0) {
     		System.out.println(initalComputeCounter + " model solutions are computed...");
     		evaluateAndSet(solution);
