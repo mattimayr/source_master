@@ -131,7 +131,7 @@ public class EBEsSurrogateMethod2 extends Problem {
 	
 	private int realInitialCounter;
 	
-	private Boolean useLinear, useNeural;
+	private Boolean useOF1Linear, useOF1Neural, useOF2Linear, useOF2Neural;
 
 	protected int maxEvaluations_ ;
   /**
@@ -705,8 +705,10 @@ public class EBEsSurrogateMethod2 extends Problem {
       modelComputeCounter = modelInitalCounter;
       realInitialCounter = 100;
       realComputeCounter = realInitialCounter;
-      useLinear = false;
-      useNeural = false;
+      useOF1Linear = false;
+      useOF1Neural = false;      
+      useOF2Linear = false;
+      useOF2Neural = false;
             
       // objectives
       switch(selectedOF){
@@ -937,72 +939,70 @@ public class EBEsSurrogateMethod2 extends Problem {
     		surrogate2.addRealSolution(solution);
     	}
     	realComputeCounter--;
-    	useLinear = false;
-    	useNeural = false;
+    	useOF1Linear = false;
+    	useOF1Neural = false;
+    	useOF2Linear = false;
+    	useOF2Neural = false;
     }
     else {
-    	if(useLinear == false && useNeural == false) {
+    	if(useOF1Linear == false && useOF2Neural == false && useOF2Linear == false && useOF2Neural == false) {
     		System.out.println(realInitialCounter + " solutions are computed...");
     		System.out.println("Starting to compute the mean squared errors...");
     		modelComputeCounter = modelInitalCounter;
-	    	double errorLinear = 0;
-	    	double errorNeural = 0;
-	    	double errorObjective1 = 0;
-	    	double errorObjective2 = 0;
+	    	double errorObjective1Neural = 0;
+	    	double errorObjective2Neural = 0;
+	    	double errorObjective1Linear = 0;
+	    	double errorObjective2Linear = 0;
 	    	for(int i = 0; i < surrogate1.getRealSolutions().size(); i++) {
 	    		Solution real1 = surrogate1.getRealSolutions().get(i);
 	    		Solution real2 = surrogate2.getRealSolutions().get(i);
 	    		sol1 = surrogate1.useLinearRegression(real1);
 	    		sol2 = surrogate2.useLinearRegression(real2);
-	    		errorObjective1 += Math.pow(real1.getObjective(0) - sol1, 2);
-	    		errorObjective2 += Math.pow(real1.getObjective(1) - sol2, 2);
-	    	}
-	    	errorObjective1 = errorObjective1/surrogate1.getRealSolutions().size();
-	    	errorObjective2 = errorObjective2/surrogate2.getRealSolutions().size();
-	    	errorLinear = (errorObjective1 + errorObjective2) / 2;
-	    	
-	    	errorObjective1 = 0;
-	    	errorObjective2 = 0;
-	    	for(int i = 0; i < surrogate1.getRealSolutions().size(); i++) {
-	    		Solution real1 = surrogate1.getRealSolutions().get(i);
-	    		Solution real2 = surrogate2.getRealSolutions().get(i);
+	    		errorObjective1Linear += Math.pow(real1.getObjective(0) - sol1, 2);
+	    		errorObjective2Linear += Math.pow(real1.getObjective(1) - sol2, 2);
 	    		sol1 = surrogate1.useNeuralNetwork(real1);
 	    		sol2 = surrogate2.useNeuralNetwork(real2);
-	    		errorObjective1 += Math.pow(real1.getObjective(0) - sol1, 2);
-	    		errorObjective2 += Math.pow(real1.getObjective(1) - sol2, 2);
-	    	}
-	    	errorObjective1 = errorObjective1/surrogate1.getRealSolutions().size();
-	    	errorObjective2 = errorObjective2/surrogate2.getRealSolutions().size();
-	    	errorNeural = (errorObjective1 + errorObjective2) / 2;
-	    	
-	    	if(errorLinear < errorNeural) {
-	    		useLinear = true;
-	    		System.out.println("Linear Regression got better error -> use Linear Regression...");
+	    		errorObjective1Neural += Math.pow(real1.getObjective(0) - sol1, 2);
+	    		errorObjective2Neural += Math.pow(real1.getObjective(1) - sol2, 2);
+	    	}	    	
+	    	if(errorObjective1Linear < errorObjective1Neural) {
+	    		useOF1Linear = true;
+	    		System.out.println("Linear Regression got better objective 1 error -> use Linear Regression for objective 1...");
 	    	} else {
-	    		useNeural = true;
-	    		System.out.println("Neural Network got better error -> use Neural Network...");
+	    		useOF1Neural = true;
+	    		System.out.println("Neural network got better objective 1 error -> use Neural network for objective 1...");
+	    	}
+	    	if(errorObjective2Linear < errorObjective2Neural) {
+	    		useOF2Linear = true;
+	    		System.out.println("Linear Regression got better objective 2 error -> use Linear Regression for objective 1...");
+	    	} else {
+	    		useOF2Neural = true;
+	    		System.out.println("Neural network got better objective 2 error -> use Neural network for objective 1...");
 	    	}
     	} else {
 	    		if(modelComputeCounter > 0) {
-		    		if(useLinear) {
-		    			long initTime = System.currentTimeMillis();
+		    		if(useOF1Linear) {
 		    			sol1 = surrogate1.useLinearRegression(solution);
-			        	sol2 = surrogate2.useLinearRegression(solution);
+		    			if(useOF2Linear) {
+		    				sol2 = surrogate2.useLinearRegression(solution);
+		    			}
+		    			else {
+		    				sol2 = surrogate2.useNeuralNetwork(solution);
+		    			}
 			        	solution.setObjective(0, sol1);
 			        	solution.setObjective(1, sol2);
 			        	modelComputeCounter--;
-			        	long estimatedTime = System.currentTimeMillis() - initTime;
-			        	System.out.println("One Model evaluation tooks: " + estimatedTime + "ms");
 			        	
 		    		} else {
-		    			long initTime = System.currentTimeMillis();
 		    			sol1 = surrogate1.useNeuralNetwork(solution);
-			        	sol2 = surrogate2.useNeuralNetwork(solution);
+		    			if(useOF2Linear) {
+		    				sol2 = surrogate2.useLinearRegression(solution);
+		    			} else {
+		    				sol2 = surrogate2.useNeuralNetwork(solution);
+		    			}			        	
 			        	solution.setObjective(0, sol1);
 			        	solution.setObjective(1, sol2);
 			        	modelComputeCounter--;
-			        	long estimatedTime = System.currentTimeMillis() - initTime;
-			        	System.out.println("One Model evaluation tooks: " + estimatedTime + "ms");
 		    		}
 	    	} else {
 	    		realComputeCounter = realInitialCounter;

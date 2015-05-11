@@ -34,7 +34,6 @@ import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
 import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.EBEsSurrogateMethod2;
-import jmetal.problems.EBEsSurrogateMethod3;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;

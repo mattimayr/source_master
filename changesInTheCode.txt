@@ -4,4 +4,5 @@
 -dominance comperator removed constraints
 
 -SM2 changed trainingSet and RealSet to 0 after one run!
+-SM2 OF1 and OF2 error calculation
 
