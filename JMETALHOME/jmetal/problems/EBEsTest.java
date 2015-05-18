@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * Class representing problem EBEs
  * Spatial Bars Structure (Estructuras de Barras Espaciales)
  */
-public class EBEs extends Problem{
+public class EBEsTest extends Problem{
   /**
    * Constructor.
    * Creates a default instance of the EBEs problem.
@@ -36,6 +36,8 @@ public class EBEs extends Problem{
    * Stores the number of Bar Groups
    */
   protected int numberOfEval_ ;
+  
+  private SurrogateWrapper sw;
 
  /*
     protected int maxEvaluations_ ;
@@ -544,7 +546,7 @@ public class EBEs extends Problem{
     // selected objetive functions
     int  selectedOF = 12;
 
-    public EBEs(String solutionType) throws ClassNotFoundException {
+    public EBEsTest(String solutionType) throws ClassNotFoundException {
 
     if (solutionType.compareTo("BinaryReal") == 0)
       solutionType_ = new BinaryRealSolutionType(this) ;
@@ -579,7 +581,7 @@ public class EBEs extends Problem{
       // read file topology structural
     	EBEsReadDataFile(file);
     } catch (JMException ex) {
-      Logger.getLogger(EBEs.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(EBEsTest.class.getName()).log(Level.SEVERE, null, ex);
     }
 
     // variables and restrictions
@@ -641,6 +643,7 @@ public class EBEs extends Problem{
       System.out.println("Algorithm configuration: ");
       
     realSolutions = new SolutionSet(10000);
+    sw = new SurrogateWrapper(this, 200, 1);
 
       //Fill lower and upper limits
     lowerLimit_ = new double[numberOfVariables_];
@@ -824,17 +827,12 @@ public class EBEs extends Problem{
    * @throws jmetal.util.JMException
    */
   public void evaluate(Solution solution) throws JMException {
-  	
-    int hi=0;
-    double [] fx = new double[numberOfObjectives_] ; // functions
-
-    EBEsElementsTopology(solution); // transforma geometria a caracterÃ­sticas mecÃ¡nicas
 
     EBEsCalculus(); //  metodo matricial de la rigidez para estructuras espaciales (3D)
 
 // START OBJETIVES FUNCTION
     
-    evaluateAndSet(solution);
+    sw.evaluate(solution);
     //realSolutions.add(solution);
 
 // NOT USED -----------------------------------
