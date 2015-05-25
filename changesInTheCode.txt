@@ -6,3 +6,5 @@
 -SM2 changed trainingSet and RealSet to 0 after one run!
 -SM2 OF1 and OF2 error calculation
 
+-new class NSGAIIDominance, where the solutions are ranked by the model
+

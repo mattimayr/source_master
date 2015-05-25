@@ -89,14 +89,6 @@ public class Surrogate {
 		return sol;
 	}
 	
-	public Solution useDominanceComperation(int numberOfObjectives) {
-		Solution sol = new Solution(numberOfObjectives);
-		
-		
-		
-		return sol;
-	}
-	
 	/**
 	 * 
 	 * @param solution the given solution

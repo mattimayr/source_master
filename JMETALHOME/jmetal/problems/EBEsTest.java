@@ -38,6 +38,8 @@ public class EBEsTest extends Problem{
   protected int numberOfEval_ ;
   
   private SurrogateWrapper sw;
+  
+  boolean useWrapper;
 
  /*
     protected int maxEvaluations_ ;
@@ -51,7 +53,16 @@ public class EBEsTest extends Problem{
     } // setNumberOfElement
  */
 
-  /*
+  public boolean isUseWrapper() {
+	return useWrapper;
+  }
+
+  public void setUseWrapper(boolean useWrapper) {
+	this.useWrapper = useWrapper;
+  }
+
+
+/*
    * Stores the number of Nodes of the problem
    */
   protected int numberOfNodes_ ;
@@ -644,6 +655,7 @@ public class EBEsTest extends Problem{
       
     realSolutions = new SolutionSet(10000);
     sw = new SurrogateWrapper(this, 200, 1);
+    useWrapper = true;
 
       //Fill lower and upper limits
     lowerLimit_ = new double[numberOfVariables_];
@@ -831,8 +843,14 @@ public class EBEsTest extends Problem{
     EBEsCalculus(); //  metodo matricial de la rigidez para estructuras espaciales (3D)
 
 // START OBJETIVES FUNCTION
-    
-    sw.evaluate(solution);
+    if(useWrapper) {
+    	useWrapper = false;
+    	sw.evaluate(solution);
+    }
+    else {
+    	evaluateAndSet(solution);
+    	useWrapper = true;
+    }
     //realSolutions.add(solution);
 
 // NOT USED -----------------------------------
