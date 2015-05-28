@@ -977,7 +977,7 @@ public class EBEsSurrogateMethod2 extends Problem {
 	    		System.out.println("Linear Regression got better objective 2 error -> use Linear Regression for objective 1...");
 	    	} else {
 	    		useOF2Neural = true;
-	    		System.out.println("Neural network got better objective 2 error -> use Neural network for objective 1...");
+	    		System.out.println("Neural network got better objective 2 error -> use Neural network for objective 2...");
 	    	}
     	} else {
 	    		if(modelComputeCounter > 0) {

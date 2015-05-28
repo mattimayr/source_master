@@ -149,7 +149,7 @@ public class NSGAIIDominance extends Algorithm {
           evaluations += 2;
         } // if                            
       } // for
-
+      System.out.println("Creating Union");
       // Create the solutionSet union of solutionSet and offSpring
       union = ((SolutionSet) population).union(offspringPopulation);
 

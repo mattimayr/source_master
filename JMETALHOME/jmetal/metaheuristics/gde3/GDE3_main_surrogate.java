@@ -1,4 +1,4 @@
-//  NSGAII_main.java
+//  GDE3_main.java
 //
 //  Author:
 //       Antonio J. Nebro <antonio@lcc.uma.es>
@@ -18,27 +18,19 @@
 // 
 //  You should have received a copy of the GNU Lesser General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-package jmetal.metaheuristics.nsgaII;
+package jmetal.metaheuristics.gde3;
 
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
-import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.encodings.variable.Real;
-import jmetal.experiments.studies.BridgeStudy;
 import jmetal.operators.crossover.CrossoverFactory;
-import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
-import jmetal.problems.EBEsSurrogateMethod1;
-import jmetal.problems.EBEsSurrogateMethod2;
+import jmetal.problems.Kursawe;
 import jmetal.problems.ProblemFactory;
-import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
-import jmetal.util.Distance;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
 
@@ -47,18 +39,10 @@ import java.util.HashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
-/** 
- * Class to configure and execute the NSGA-II algorithm.  
- *     
- * Besides the classic NSGA-II, a steady-state version (ssNSGAII) is also
- * included (See: J.J. Durillo, A.J. Nebro, F. Luna and E. Alba 
- *                  "On the Effect of the Steady-State Selection Scheme in 
- *                  Multi-Objective Genetic Algorithms"
- *                  5th International Conference, EMO 2009, pp: 183-197. 
- *                  April 2009)
- */ 
-
-public class NSGAII_main_surrogate {
+/**
+ * Class for configuring and running the GDE3 algorithm
+ */
+public class GDE3_main_surrogate {
   public static Logger      logger_ ;      // Logger object
   public static FileHandler fileHandler_ ; // FileHandler object
 
@@ -67,32 +51,26 @@ public class NSGAII_main_surrogate {
    * @throws JMException 
    * @throws IOException 
    * @throws SecurityException 
-   * Usage: three options
+   * Usage: three choices
    *      - jmetal.metaheuristics.nsgaII.NSGAII_main
    *      - jmetal.metaheuristics.nsgaII.NSGAII_main problemName
    *      - jmetal.metaheuristics.nsgaII.NSGAII_main problemName paretoFrontFile
    */
-  public static void main(String [] args) throws 
-                                  JMException, 
-                                  SecurityException, 
-                                  IOException, 
-                                  ClassNotFoundException {
-    Problem problem   ; // The problem to solve
-    Algorithm algorithm ; // The algorithm to use
-    Operator  crossover ; // Crossover operator
-    Operator  mutation  ; // Mutation operator
-    Operator  selection ; // Selection operator
+  public static void main(String [] args) throws JMException, SecurityException, IOException, ClassNotFoundException {
+    Problem   problem   ;         // The problem to solve
+    Algorithm algorithm ;         // The algorithm to use
+    Operator  selection ;
+    Operator  crossover ;
     
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 10000;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
-    fileHandler_ = new FileHandler("NSGAII_main.log"); 
+    fileHandler_ = new FileHandler("GDE3_main.log"); 
     logger_.addHandler(fileHandler_) ;
-        
+    
     indicators = null ;
     if (args.length == 1) {
       Object [] params = {"Real"};
@@ -104,64 +82,42 @@ public class NSGAII_main_surrogate {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	problem = new EBEsSurrogateMethod2("Real", maxEvaluations);
-      //problem = new Kursawe("Real", 3);
-      //problem = new Kursawe("BinaryReal", 3);
+    	problem = new EBEs("Real");
+      //problem = new Kursawe("Real", 3); 
       //problem = new Water("Real");
-    	//problem = new ZDT3("ArrayReal", 30);
+      //problem = new ZDT1("ArrayReal", 100);
       //problem = new ConstrEx("Real");
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new NSGAII(problem);
-    //algorithm = new ssNSGAII(problem);
-
-    // Algorithm parameters
-    algorithm.setInputParameter("populationSize",1000);
-    algorithm.setInputParameter("maxEvaluations",maxEvaluations);
-
-    // Mutation and Crossover for Real codification 
-    parameters = new HashMap() ;
-    parameters.put("probability", 0.9) ;
-    parameters.put("distributionIndex", 20.0) ;
-    crossover = CrossoverFactory.getCrossoverOperator("SBXCrossover", parameters);                   
-
-    parameters = new HashMap() ;
-    parameters.put("probability", 1.0/problem.getNumberOfVariables()) ;
-    parameters.put("distributionIndex", 20.0) ;
-    mutation = MutationFactory.getMutationOperator("PolynomialMutation", parameters);                    
-
-    // Selection Operator 
-    parameters = null ;
-    selection = SelectionFactory.getSelectionOperator("BinaryTournament2", parameters) ;                           
-
-    // Add the operators to the algorithm
-    algorithm.addOperator("crossover",crossover);
-    algorithm.addOperator("mutation",mutation);
-    algorithm.addOperator("selection",selection);
-
-    // Add the indicator object to the algorithm
-    algorithm.setInputParameter("indicators", indicators) ;
+    algorithm = new GDE3(problem);
     
-    // Execute the Algorithm
+    // Algorithm parameters
+    algorithm.setInputParameter("populationSize",100);
+    algorithm.setInputParameter("maxIterations",10);
+    
+    // Crossover operator 
+    parameters = new HashMap() ;
+    parameters.put("CR", 0.5) ;
+    parameters.put("F", 0.5) ;
+    crossover = CrossoverFactory.getCrossoverOperator("DifferentialEvolutionCrossover", parameters);                   
+    
+    // Add the operators to the algorithm
+    parameters = null ;
+    selection = SelectionFactory.getSelectionOperator("DifferentialEvolutionSelection", parameters) ;
+
+    algorithm.addOperator("crossover",crossover);
+    algorithm.addOperator("selection",selection);
+    
+    // Execute the Algorithm 
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
-    
-    SolutionSet realSolutions = new SolutionSet(maxEvaluations);
-    realSolutions = problem.getRealSolutions();
-    System.out.println("Size: " + realSolutions.size());
-    Ranking rank = new Ranking(realSolutions);
-    SolutionSet ranked = new SolutionSet(maxEvaluations);
+    Ranking rank = new Ranking(population);
+    SolutionSet ranked = new SolutionSet(1000);
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_SM2New");
-    
-//    realSolutions.printObjectivesToFile("POPULATION");
-// 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
-//    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
-//    }
-    
+    ranked.printObjectivesToFile("RANK0_Problem1000");
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -177,13 +133,6 @@ public class NSGAII_main_surrogate {
       logger_.info("IGD        : " + indicators.getIGD(population)) ;
       logger_.info("Spread     : " + indicators.getSpread(population)) ;
       logger_.info("Epsilon    : " + indicators.getEpsilon(population)) ;  
-     
-      int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
-      logger_.info("Speed      : " + evaluations + " evaluations") ;      
-    } // if
-    
-    logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0_Problem");
-    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
-  } //main
-} // NSGAII_main
+    } // if        
+  }//main
+} // GDE3_main
