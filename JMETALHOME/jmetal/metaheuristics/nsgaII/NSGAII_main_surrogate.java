@@ -35,6 +35,7 @@ import jmetal.problems.EBEs;
 import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.EBEsSurrogateMethod2;
 import jmetal.problems.ProblemFactory;
+import jmetal.problems.SurrogateWrapper;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
@@ -86,8 +87,9 @@ public class NSGAII_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 10000;
-
+    int maxEvaluations = 200;
+    int populationSize = 100;
+    
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
     fileHandler_ = new FileHandler("NSGAII_main.log"); 
@@ -104,7 +106,7 @@ public class NSGAII_main_surrogate {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	problem = new EBEsSurrogateMethod2("Real", maxEvaluations);
+    	problem = new EBEs("Real");
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
@@ -113,12 +115,12 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    
-    algorithm = new NSGAII(problem);
+    SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, 2, populationSize);
+    algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",1000);
+    algorithm.setInputParameter("populationSize",populationSize);
     algorithm.setInputParameter("maxEvaluations",maxEvaluations);
 
     // Mutation and Crossover for Real codification 
@@ -150,12 +152,12 @@ public class NSGAII_main_surrogate {
     long estimatedTime = System.currentTimeMillis() - initTime;
     
     SolutionSet realSolutions = new SolutionSet(maxEvaluations);
-    realSolutions = problem.getRealSolutions();
+    realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
     Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_SM2New");
+    ranked.printObjectivesToFile("NEW!!");
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){

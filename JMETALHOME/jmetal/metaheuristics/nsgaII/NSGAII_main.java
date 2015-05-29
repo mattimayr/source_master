@@ -146,11 +146,6 @@ public class NSGAII_main {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
-    Ranking rank = new Ranking(population);
-    
-    for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
-    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
-    }
        
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");

@@ -8,3 +8,7 @@
 
 -new class NSGAIIDominance, where the solutions are ranked by the model
 
+-Wrapper class for transparent integration within jMetal
+
+
+

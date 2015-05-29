@@ -34,6 +34,11 @@ public class Surrogate {
 	
 	private int solutionSize;
 	
+	public Surrogate() {
+		nnModel = new MultilayerPerceptron();
+		linearModel = new LinearRegression();
+	}
+	
 	/**
 	 * 
 	 * @param numberOfObjectiveFunction which objective function is used
