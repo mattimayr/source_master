@@ -10,10 +10,8 @@ import jmetal.util.comparators.DominanceComparator;
  * @author Mayr Matthiasp
  *
  */
-public class SurrogateWrapper extends Problem {
+public class SurrogateWrapper2 extends Problem {
 	
-	
-
 	// the real Problem and a SolutionSet for saving solutions of the real problem
 	private Problem problem;
 	private SolutionSet realSolutions;
@@ -28,6 +26,12 @@ public class SurrogateWrapper extends Problem {
 	private int method;
 	private int populationSize;
 	
+	//components for method 1
+	private int computeCounter;
+	private int percentOfSolutionComparisms;
+	private double epsilon;
+	private SolutionSet roundSolutions;
+	
 	//components for method 2
 	private int modelInitCounter;
 	private int realInitCounter;
@@ -38,14 +42,12 @@ public class SurrogateWrapper extends Problem {
 	boolean useOF1Neural;
 	boolean useOF2Neural;
 	
-	private int computeCounter;
-	
 	//components for method 3
 	private SolutionSet offSprings;
 	private DominanceComparator comparator;
 	
-	
-	public SurrogateWrapper(Problem problem, int populationSize) {
+	//constructors
+	public SurrogateWrapper2(Problem problem, int populationSize) {
 		this.problem = problem;
 		this.populationSize = populationSize;
 		this.method = 1;
@@ -53,7 +55,7 @@ public class SurrogateWrapper extends Problem {
 		initialize();
 	}
 	
-	public SurrogateWrapper(Problem problem, int maxEvaluations, int populationSize) {
+	public SurrogateWrapper2(Problem problem, int maxEvaluations, int populationSize) {
 		this.problem = problem;
 		this.populationSize = populationSize;
 		this.maxEvaluations = maxEvaluations;
@@ -62,7 +64,7 @@ public class SurrogateWrapper extends Problem {
 		initialize();
 	}
 	
-	public SurrogateWrapper(Problem problem, int maxEvaluations, int method, int populationSize) {
+	public SurrogateWrapper2(Problem problem, int maxEvaluations, int method, int populationSize) {
 		this.problem = problem;
 		this.populationSize = populationSize;
 		this.maxEvaluations = maxEvaluations;
@@ -70,8 +72,9 @@ public class SurrogateWrapper extends Problem {
 		initialize();
 	}
 	
+	//initialize method to initialize the needed components
 	private void initialize() {
-		//firstly delegate problem variables
+		//delegate problem variables
 		solutionType_ = problem.getSolutionType();
 		numberOfConstraints_ = problem.getNumberOfConstraints();
 		numberOfObjectives_ = problem.getNumberOfObjectives();
@@ -84,10 +87,14 @@ public class SurrogateWrapper extends Problem {
 		surrogateOF1 = new Surrogate();
 		surrogateOF2 = new Surrogate();
 		
+		//initialize the needed components depending on the used method
 		switch(method) {
 			case 1:
 				modelInitCounter = 20;
 				computeCounter = modelInitCounter;
+				percentOfSolutionComparisms = 20; //if 0 the last solution will be taken, if 1 the best will be taken
+				epsilon = 0.5;
+				roundSolutions = new SolutionSet(computeCounter);
 				break;
 			case 2:
 				modelInitCounter = 20;
@@ -106,6 +113,7 @@ public class SurrogateWrapper extends Problem {
 		}			
 	}
 	
+	//choose the used method
 	public void evaluate(Solution solution) throws JMException {
 		switch(method) {
 			case 1: 
@@ -128,10 +136,11 @@ public class SurrogateWrapper extends Problem {
 		double[] fx  = new double[solution.getNumberOfObjectives()];
 		double sol1, sol2;
 		
+		//evaluating the last 10% with the real problem
 		if(numberOfEval >= maxEvaluations - maxEvaluations * 0.1) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
-		} else if(numberOfEval <= numberOfInitialSolutions) {
+		} else if(numberOfEval <= numberOfInitialSolutions) { //create the initial training set of the surrogates
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 			surrogateOF1.fillTrainSet(0, solution);
@@ -141,32 +150,73 @@ public class SurrogateWrapper extends Problem {
 			}
 		} else {   
 			// use model to compute new solutions  	
-			sol1 = surrogateOF1.useLinearRegression(solution);
-			sol2 = surrogateOF2.useLinearRegression(solution);
+			sol1 = surrogateOF1.useNeuralNetwork(solution);
+			sol2 = surrogateOF2.useNeuralNetwork(solution);
 			solution.setObjective(0, sol1);
 			solution.setObjective(1, sol2);
+			roundSolutions.add(solution);
 			computeCounter--;
-
+			
+			//if one round of model solution evaluation is done do the error correction
 			if(computeCounter == 0) {
 	    		System.out.println(modelInitCounter + " model solutions are computed...");
-	    		problem.evaluate(solution);
-	    		realSolutions.add(solution);
-	    		fx[0] = solution.getObjective(0);
-	    		fx[1] = solution.getObjective(1);
-	    		if(fx[0] < sol1) {
-	    			System.out.println("Found better solution in objective 1 --> save to train set...");
-	    			surrogateOF1.fillTrainSet(0, solution);
-	    			computeCounter = modelInitCounter;
-	    		} 
-	    		if(fx[1] < sol2) {
-	    			System.out.println("Found better solution in objective 2 --> save to train set...");
-	    			surrogateOF2.fillTrainSet(1, solution);
-	    			computeCounter = modelInitCounter;
-	    		} else {
-	    			System.out.println(modelInitCounter + " model solutions are computed...");
-	    			computeCounter = modelInitCounter;
-	    		}
+				//check a given percentage of the generated model solutions against the real solution
+				if(percentOfSolutionComparisms != 0 && percentOfSolutionComparisms != 1) {
+					System.out.println("Comparing now " + percentOfSolutionComparisms + "% of the last generated solutions...");
+					for(int i = 1; i <= roundSolutions.size(); i++) {
+						if((i-1) % (100/percentOfSolutionComparisms) == 0) {
+							solution = roundSolutions.get(i-1);
+							sol1 = solution.getObjective(0);
+							sol2 = solution.getObjective(1);
+							problem.evaluate(solution);
+							fx[0] = solution.getObjective(0);
+							fx[1] = solution.getObjective(1);
+							realSolutions.add(solution);
+							if(Math.abs(fx[0] - sol1) > epsilon) {
+								System.out.println("Found better solution in objective 1 --> save to train set...");
+								surrogateOF1.fillTrainSet(0, solution);							
+							} 
+							if(Math.abs(fx[1] - sol2) > epsilon) {
+								System.out.println("Found better solution in objective 2 --> save to train set...");
+								surrogateOF2.fillTrainSet(1, solution);
+							}
+						}
+					}
+					System.out.println("Comparism is done...");
+					computeCounter = modelInitCounter;
+				} else { 
+					switch(percentOfSolutionComparisms) {
+						case 0: //evaluate the last solution
+							problem.evaluate(solution);
+							realSolutions.add(solution);
+							fx[0] = solution.getObjective(0);
+							fx[1] = solution.getObjective(1);
+							break;
+						case 1:	//evaluate the best solution within the last round
+							solution = roundSolutions.best(comparator);
+							realSolutions.add(solution);
+							fx[0] = solution.getObjective(0);
+							fx[1] = solution.getObjective(1);
+							sol1 = surrogateOF1.useLinearRegression(solution);
+							sol2 = surrogateOF2.useLinearRegression(solution);
+							break;
+					}
+					if(Math.abs(fx[0] - sol1) > epsilon) {
+						System.out.println("Found better solution in objective 1 --> save to train set...");
+						surrogateOF1.fillTrainSet(0, solution);
+						computeCounter = modelInitCounter;
+					} 
+					if(Math.abs(fx[1] - sol2) > epsilon) {
+						System.out.println("Found better solution in objective 2 --> save to train set...");
+						surrogateOF2.fillTrainSet(1, solution);
+						computeCounter = modelInitCounter;
+					} else {
+						System.out.println(modelInitCounter + " model solutions are computed...");
+						computeCounter = modelInitCounter;
+					}
+				}
 			}
+			roundSolutions.clear();
 		}
 		numberOfEval++;
 	}
@@ -222,7 +272,7 @@ public class SurrogateWrapper extends Problem {
 		    	}
 		    	if(errorObjective2Linear < errorObjective2Neural) {
 		    		useOF2Linear = true;
-		    		System.out.println("Linear Regression got better objective 2 error -> use Linear Regression for objective 1...");
+		    		System.out.println("Linear Regression got better objective 2 error -> use Linear Regression for objective 2...");
 		    	} else {
 		    		useOF2Neural = true;
 		    		System.out.println("Neural network got better objective 2 error -> use Neural network for objective 2...");
@@ -275,7 +325,6 @@ public class SurrogateWrapper extends Problem {
 			if((numberOfEval%2) == 0) {
 				surrogateOF1.fillTrainSet(0, solution);
 				surrogateOF2.fillTrainSet(1, solution);
-				System.out.println(solution.getObjective(0) + " " + solution.getObjective(1) + " added to Trainset");
 			}
 			if(numberOfEval == populationSize/4)
 				System.out.println("50% of the initial population has been finished...");
@@ -300,13 +349,6 @@ public class SurrogateWrapper extends Problem {
 						problem.evaluate(offSprings.get(0));
 						realSolutions.add(offSprings.get(0));
 						System.out.println("Dominance = -1");
-						break;
-					case 0: 
-						System.out.println("Dominance = 0");
-						problem.evaluate(offSprings.get(0));
-						problem.evaluate(offSprings.get(1));
-						realSolutions.add(offSprings.get(0));
-						realSolutions.add(offSprings.get(1));
 						break;
 					case 1:
 						problem.evaluate(offSprings.get(1));

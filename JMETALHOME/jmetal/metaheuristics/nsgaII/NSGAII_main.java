@@ -112,12 +112,12 @@ public class NSGAII_main {
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new NSGAII(problem);
+    algorithm = new NSGAIITime(problem);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",100);
-    algorithm.setInputParameter("maxEvaluations", 200);
+    algorithm.setInputParameter("populationSize",500);
+    algorithm.setInputParameter("maxEvaluations", 5000);
     
     // Mutation and Crossover for Real codification 
     parameters = new HashMap() ;

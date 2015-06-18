@@ -36,6 +36,7 @@ import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.EBEsSurrogateMethod2;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.SurrogateWrapper;
+import jmetal.problems.SurrogateWrapper2;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
@@ -87,8 +88,8 @@ public class NSGAII_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 200;
-    int populationSize = 100;
+    int maxEvaluations = 5000;
+    int populationSize = 500;
     
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -115,8 +116,8 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, 2, populationSize);
-    algorithm = new NSGAII(sw);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 3, populationSize);
+    algorithm = new NSGAIITime(sw);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
@@ -157,7 +158,7 @@ public class NSGAII_main_surrogate {
     Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("NEW!!");
+    ranked.printObjectivesToFile("RANK0_SM3.2_10MIN");
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
@@ -185,7 +186,7 @@ public class NSGAII_main_surrogate {
     } // if
     
     logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0_Problem");
+    indicators = new QualityIndicator(problem, "RANK0_Problem_10MIN");
     logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
 } // NSGAII_main
