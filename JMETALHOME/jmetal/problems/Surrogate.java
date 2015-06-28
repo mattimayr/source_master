@@ -1,6 +1,8 @@
 package jmetal.problems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import weka.core.FastVector;
@@ -29,7 +31,7 @@ public class Surrogate {
 	private SolutionSet realSolutions;
 	private int[][] classifier;
 	
-	private Map<SolutionSet, Integer> classifiedSolutions; 
+	private Instances classifiedSolutions; 
 	private DominanceComparator comperator;
 	
 	private int solutionSize;
@@ -127,6 +129,77 @@ public class Surrogate {
 		}
 	}
 	
+	//WEKA relational attribute to create multi-instance input
+		//create two instances add to instances trainset and add to a relational attribute. Last point is to create a nominal attribute with (-1,0,1)!!
+		public void fillClassifyingTrainSet(int numberOfObjectiveFunction, Solution solution1, Solution solution2) {
+			int flag = 0;
+			comperator = new DominanceComparator();
+			if(trainSet == null) {				
+				flag = comperator.compare(solution1, solution2);
+				
+				//create x attributes for the solutions
+				FastVector solutionAttributes = new FastVector(solution1.numberOfVariables());
+				for(int i = 0; i < solution1.numberOfVariables(); i++) {
+					solutionAttributes.addElement(new Attribute("x["+i+"]"));
+				}
+				//create two solutions
+				Instance sol1 = new Instance(solution1.numberOfVariables());
+				Instance sol2 = new Instance(solution2.numberOfVariables());
+				
+				//create relational attribute for the two solutions
+				classifiedSolutions = new Instances("Solutions", solutionAttributes, 2);
+				fillXAttributes(sol1, solution1);
+				fillXAttributes(sol2, solution2);
+				
+				//add the two solutions to the relational attribute
+				classifiedSolutions.add(sol1);
+				classifiedSolutions.add(sol2);
+				
+				//create an vector for the two needed attributes of the classification
+				FastVector instanceAttributes = new FastVector(2);
+				Attribute solutions = new Attribute("Solutions", classifiedSolutions);
+				instanceAttributes.addElement(solutions);
+				
+				//create an attribute for the dominance flag
+				FastVector dominanceFlags = new FastVector(3);
+				dominanceFlags.addElement(-1);
+				dominanceFlags.addElement(0);
+				dominanceFlags.addElement(1);
+				Attribute dominanceFlag = new Attribute("DominanceFlag", dominanceFlags);
+				
+				//add the dominance flag to the trainset attributes
+				instanceAttributes.addElement(dominanceFlag);
+				
+				trainSet = new Instances("Data", instanceAttributes, 10000);
+				
+				//set the class value of the data set to the dominance flag
+				trainSet.setClassIndex(currentInstance.numAttributes() - 1);
+				currentInstance = new Instance(3);
+				currentInstance.setDataset(trainSet);
+				
+				//set the dominance flag 
+				currentInstance.setValue(currentInstance.classAttribute(), flag);
+				trainSet.add(currentInstance);	
+				System.out.println(trainSet);
+			} else {
+				flag = comperator.compare(solution1, solution2);
+				Instance sol1 = new Instance(solution1.numberOfVariables());
+				Instance sol2 = new Instance(solution2.numberOfVariables());			
+				fillXAttributes(sol1, solution1);
+				fillXAttributes(sol2, solution2);
+				classifiedSolutions.add(sol1);
+				classifiedSolutions.add(sol2);
+				
+				currentInstance = new Instance(3);
+				currentInstance.setDataset(trainSet);
+				trainSet.setClassIndex(currentInstance.numAttributes() - 1);
+				
+				currentInstance.setValue(currentInstance.classAttribute(), flag);
+				trainSet.add(currentInstance);
+				System.out.println(trainSet);
+			}
+		}
+	
 	/**
 	 * 
 	 * @param currentInstance the current instance 
@@ -181,15 +254,9 @@ public class Surrogate {
 	public int getSolutionSize() {
 		return solutionSize;
 	}
+	
 	public void setSolutionSize(int solutionSize) {
 		this.solutionSize = solutionSize;
-	}
-	public Map<SolutionSet, Integer> getClassifiedSolutions() {
-		return classifiedSolutions;
-	}
-
-	public void setClassifiedSolutions(Map<SolutionSet, Integer> classifiedSolutions) {
-		this.classifiedSolutions = classifiedSolutions;
 	}
 
 	public void addRealSolution(Solution solution) {
@@ -203,27 +270,9 @@ public class Surrogate {
 		this.realSolutions = null;
 	}
 	
-	public void classifySolutions() {
-		if(classifier == null) {
-			classifier = new int[realSolutions.size()][realSolutions.size()];
-		} else if(comperator == null) {
-			comperator = new DominanceComparator();
-		}	else {
-			SolutionSet comparedSolutions = new SolutionSet(2);
-			for(int i = 0; i < realSolutions.size(); i++) {
-				Solution sol1 = realSolutions.get(i);
-				for(int j = 0; j < realSolutions.size(); j++) {
-					Solution sol2 = realSolutions.get(j);
-					int flag = comperator.compare(sol1, sol2);
-					System.out.println("Flag = " + flag);
-					classifier[i][j] = flag;
-					comparedSolutions.clear();
-					comparedSolutions.add(sol1);
-					comparedSolutions.add(sol2);
-					classifiedSolutions.put(comparedSolutions, flag);
-				}				
-			}
-		}
+	public void emptyClassfiedSolutions() {
+		for(int i = 0; i < classifiedSolutions.numInstances(); i++)
+			this.classifiedSolutions.delete(i);
 	}
 
 }

@@ -362,6 +362,15 @@ public class SurrogateWrapper2 extends Problem {
 		numberOfEval++;
 	}
 
+	public void useMethod4(Solution solution) throws JMException {
+		if(numberOfEval <= populationSize) {
+			problem.evaluate(solution);
+			realSolutions.add(solution);
+		} else {
+			
+		}		
+	}
+	
 	public Problem getProblem() {
 		return problem;
 	}
