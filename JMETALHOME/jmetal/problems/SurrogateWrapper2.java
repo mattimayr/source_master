@@ -7,7 +7,7 @@ import jmetal.util.JMException;
 import jmetal.util.comparators.DominanceComparator;
 
 /**
- * @author Mayr Matthiasp
+ * @author Mayr Matthias
  *
  */
 public class SurrogateWrapper2 extends Problem {
@@ -45,6 +45,10 @@ public class SurrogateWrapper2 extends Problem {
 	//components for method 3
 	private SolutionSet offSprings;
 	private DominanceComparator comparator;
+	
+	//components for method 4
+	private int trainSetSize;
+	private SolutionSet solutionsToCompare;
 	
 	//constructors
 	public SurrogateWrapper2(Problem problem, int populationSize) {
@@ -110,6 +114,11 @@ public class SurrogateWrapper2 extends Problem {
 				comparator = new DominanceComparator();
 				offSprings = new SolutionSet(2);
 				break;
+			case 4:
+				classifyingSurrogate = new Surrogate();
+				trainSetSize = 10;
+				solutionsToCompare = new SolutionSet(2);
+				break;
 		}			
 	}
 	
@@ -124,6 +133,9 @@ public class SurrogateWrapper2 extends Problem {
 				break;
 			case 3:
 				useMethod3(solution);
+				break;
+			case 4:
+				useMethod4(solution);
 				break;
 			default:
 				useMethod1(solution);
@@ -363,9 +375,16 @@ public class SurrogateWrapper2 extends Problem {
 	}
 
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval <= populationSize) {
-			problem.evaluate(solution);
-			realSolutions.add(solution);
+		if(numberOfEval <= trainSetSize) {
+			if(solutionsToCompare.size() < 1) {
+				problem.evaluate(solution);
+				solutionsToCompare.add(solution);
+			} else {
+				problem.evaluate(solution);
+				solutionsToCompare.add(solution);
+				classifyingSurrogate.fillClassifyingTrainSet(solutionsToCompare.get(0), solutionsToCompare.get(1));
+				solutionsToCompare = new SolutionSet(2);
+			}
 		} else {
 			
 		}		

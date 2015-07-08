@@ -21,6 +21,7 @@
 
 package jmetal.core;
 
+import jmetal.problems.Surrogate;
 import jmetal.util.JMException;
 
 import java.io.Serializable;
@@ -38,8 +39,12 @@ public abstract class Problem implements Serializable {
   /**
    * The SolutionSet of the real solutions got from evaluating the function
    */
-  
   protected SolutionSet realSolutions;
+  
+  /**
+   * The surrogate used for the classification
+   */
+  protected Surrogate classifyingSurrogate;
   
   /**
    * Stores the number of variables of the problem
@@ -250,5 +255,13 @@ public abstract class Problem implements Serializable {
 
 	public void setRealSolutions(SolutionSet realSolutions) {
 		this.realSolutions = realSolutions;
+	}
+
+	public Surrogate getClassifyingSurrogate() {
+		return classifyingSurrogate;
+	}
+
+	public void setClassifyingSurrogate(Surrogate classifyingSurrogate) {
+		this.classifyingSurrogate = classifyingSurrogate;
 	}
 } // Problem

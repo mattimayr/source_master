@@ -126,7 +126,7 @@ public class NSGAII extends Algorithm {
       union = ((SolutionSet) population).union(offspringPopulation);
 
       // Ranking the union
-      Ranking ranking = new Ranking(union);
+      Ranking ranking = new Ranking(union, problem_.getClassifyingSurrogate());
 
       int remain = populationSize;
       int index = 0;

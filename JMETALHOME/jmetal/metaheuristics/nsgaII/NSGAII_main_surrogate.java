@@ -88,8 +88,8 @@ public class NSGAII_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 5000;
-    int populationSize = 500;
+    int maxEvaluations = 1000;
+    int populationSize = 50;
     
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -116,8 +116,8 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 3, populationSize);
-    algorithm = new NSGAIITime(sw);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
+    algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
@@ -155,10 +155,10 @@ public class NSGAII_main_surrogate {
     SolutionSet realSolutions = new SolutionSet(maxEvaluations);
     realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
-    Ranking rank = new Ranking(realSolutions);
+    Ranking rank = new Ranking(population);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_SM3.2_10MIN");
+    ranked.printObjectivesToFile("TESTClassification");
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
