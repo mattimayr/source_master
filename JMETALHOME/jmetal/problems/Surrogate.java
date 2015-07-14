@@ -95,6 +95,7 @@ public class Surrogate {
 	}
 	
 	public int useClassifier(Solution solution1, Solution solution2) {
+		double[] distribution;
 		int flag = 0;
 		if(nnModel == null) {
 			nnModel = new MultilayerPerceptron();
@@ -108,7 +109,8 @@ public class Surrogate {
 				currentInstance.setDataset(trainSet);
 				fillXAttributesForClassification(currentInstance, solution1, solution2);
 				
-				flag = (int)nnModel.classifyInstance(currentInstance);
+				distribution = nnModel.distributionForInstance(currentInstance);
+				flag = getFlag(distribution);
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -189,7 +191,7 @@ public class Surrogate {
 			System.out.println(currentInstance.classAttribute().name());
 			
 			//set the dominance flag 
-			currentInstance.setValue(currentInstance.classAttribute(), flag);
+			currentInstance.setValue(currentInstance.classAttribute(), Integer.toString(flag));
 			trainSet.add(currentInstance);	
 			System.out.println(trainSet);	
 		} else {			
@@ -200,8 +202,9 @@ public class Surrogate {
 			fillXAttributesForClassification(currentInstance, solution1, solution2);
 			
 			trainSet.setClassIndex(currentInstance.numAttributes() - 1);
-			currentInstance.setValue(currentInstance.classAttribute(), flag);
+			currentInstance.setValue(currentInstance.classAttribute(), Integer.toString(flag));
 			trainSet.add(currentInstance);
+			System.out.println(trainSet);
 		}
 	}
 	
@@ -304,6 +307,18 @@ public class Surrogate {
 	public void emptyClassfiedSolutions() {
 		for(int i = 0; i < classifiedSolutions.numInstances(); i++)
 			this.classifiedSolutions.delete(i);
+	}
+	
+	public int getFlag(double[] distribution) {
+		double max = distribution[0];
+		int flag = -1;
+		for(int i = -1; i < 1; i++) {
+			if(distribution[i+2] > max) {
+				max = distribution[i+2];
+				flag = i;
+			}	
+		}
+		return flag;
 	}
 
 }

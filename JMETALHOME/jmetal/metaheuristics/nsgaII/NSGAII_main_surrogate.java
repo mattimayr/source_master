@@ -89,7 +89,7 @@ public class NSGAII_main_surrogate {
     
     QualityIndicator indicators ; // Object to get quality indicators
     int maxEvaluations = 1000;
-    int populationSize = 50;
+    int populationSize = 100;
     
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -116,8 +116,8 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
-    algorithm = new NSGAII(sw);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 2, populationSize);
+    algorithm = new NSGAIITime(sw);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
@@ -155,10 +155,10 @@ public class NSGAII_main_surrogate {
     SolutionSet realSolutions = new SolutionSet(maxEvaluations);
     realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
-    Ranking rank = new Ranking(population);
+    Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("TESTClassification");
+    ranked.printObjectivesToFile("TEST");
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
@@ -186,7 +186,7 @@ public class NSGAII_main_surrogate {
     } // if
     
     logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0_Problem_10MIN");
+    indicators = new QualityIndicator(problem, "RANK0_Problem_20MIN");
     logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
 } // NSGAII_main

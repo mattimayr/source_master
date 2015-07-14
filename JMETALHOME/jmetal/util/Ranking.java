@@ -221,10 +221,10 @@ public class Ranking {
         //flagDominate =constraint_.compare(solutionSet.get(p),solutionSet.get(q));
 		if(surrogate != null) {
 			flagDominate = surrogate.useClassifier(solutionSet.get(p),solutionSet.get(q));
-			System.out.println(flagDominate);
 		}
-		else 
+		else {
 			flagDominate = dominance_.compare(solutionSet.get(p),solutionSet.get(q));
+		}
 			
         if (flagDominate == 0) {
           

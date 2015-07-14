@@ -1,3 +1,0 @@
-set term png
-set output "NSGAII_Comparism2.png"
-plot "RANK0_Problem", "RANK0_SM1P", "RANK0_SM1L", "RANK0_SM2", "RANK0_NSGAIIDominance", "RANK0_Problem1500", "RANK0_SM2New"

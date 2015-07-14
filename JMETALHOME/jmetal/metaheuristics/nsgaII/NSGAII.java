@@ -121,13 +121,12 @@ public class NSGAII extends Algorithm {
           evaluations += 2;
         } // if                            
       } // for
-
+      
       // Create the solutionSet union of solutionSet and offSpring
       union = ((SolutionSet) population).union(offspringPopulation);
 
       // Ranking the union
-      Ranking ranking = new Ranking(union, problem_.getClassifyingSurrogate());
-
+      Ranking ranking = new Ranking(union);
       int remain = populationSize;
       int index = 0;
       SolutionSet front = null;

@@ -375,7 +375,7 @@ public class SurrogateWrapper2 extends Problem {
 	}
 
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval <= trainSetSize) {
+		if(numberOfEval <= trainSetSize*2) {
 			if(solutionsToCompare.size() < 1) {
 				problem.evaluate(solution);
 				solutionsToCompare.add(solution);
@@ -386,8 +386,12 @@ public class SurrogateWrapper2 extends Problem {
 				solutionsToCompare = new SolutionSet(2);
 			}
 		} else {
-			
-		}		
+			if(numberOfEval % 100 == 0)
+				System.out.println("Number of eval % 100 = 0!");
+			else 
+				System.out.println("Test");
+		}	
+		numberOfEval++;
 	}
 	
 	public Problem getProblem() {

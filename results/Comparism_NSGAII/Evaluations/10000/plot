@@ -1,0 +1,3 @@
+set term png
+set output "NSGAII_ComparismTest.png"
+plot "RANK0_Problem", "RANK0_SM1P", "RANK0_SM1L", "RANK0_SM2", "RANK0_NSGAIIDominance", "RANK0_Problem1500", "RANK0_SM2New", "RANK0_SM1M_20MIN", "RANK0_Problem_20MIN"

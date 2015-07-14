@@ -1,3 +1,0 @@
-set term png
-set output "NSGAII_Comparism"
-plot "nsga", "nsm1l", "nsm1p", "nsm2"
