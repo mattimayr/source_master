@@ -39,7 +39,7 @@ public abstract class Algorithm implements Serializable {
   /**
    * Stores the problem to solve
    */
-  protected Problem problem_;        
+  protected Problem problem_;       
 
  /** 
   * Stores the operators used by the algorithm, such as selection, crossover,

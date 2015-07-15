@@ -100,7 +100,7 @@ public class NSGAII extends Algorithm {
     
     // Generations 
     while (evaluations < maxEvaluations) {
-
+    System.out.println(evaluations);
       // Create the offSpring solutionSet      
       offspringPopulation = new SolutionSet(populationSize);
       Solution[] parents = new Solution[2];
@@ -119,8 +119,10 @@ public class NSGAII extends Algorithm {
           offspringPopulation.add(offSpring[0]);
           offspringPopulation.add(offSpring[1]);
           evaluations += 2;
+          System.out.println("NSGAII: " + evaluations);
         } // if                            
       } // for
+      System.out.println("NSGAII: " + evaluations);
       
       // Create the solutionSet union of solutionSet and offSpring
       union = ((SolutionSet) population).union(offspringPopulation);

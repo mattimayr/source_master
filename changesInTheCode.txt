@@ -10,5 +10,7 @@
 
 -Wrapper class for transparent integration within jMetal
 
+-added numberOfEval_ to Problem.java (getter and setter also)
+
 
 

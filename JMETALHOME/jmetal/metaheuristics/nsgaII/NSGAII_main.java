@@ -112,12 +112,12 @@ public class NSGAII_main {
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new NSGAIITime(problem);
+    algorithm = new NSGAII(problem);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",500);
-    algorithm.setInputParameter("maxEvaluations", 5000);
+    algorithm.setInputParameter("populationSize",1000);
+    algorithm.setInputParameter("maxEvaluations", 10000);
     
     // Mutation and Crossover for Real codification 
     parameters = new HashMap() ;
@@ -146,6 +146,11 @@ public class NSGAII_main {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
+    
+    Ranking rank = new Ranking(population);
+    SolutionSet ranked = new SolutionSet(population.size());
+    ranked = rank.getSubfront(0);
+    ranked.printObjectivesToFile("RANK0_Problem_10000");
        
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -165,5 +170,8 @@ public class NSGAII_main {
       int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
       logger_.info("Speed      : " + evaluations + " evaluations") ;      
     } // if
+    logger_.info("Quality indicators") ;
+    indicators = new QualityIndicator(problem, "RANK0_Problem_10000");
+    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
 } // NSGAII_main

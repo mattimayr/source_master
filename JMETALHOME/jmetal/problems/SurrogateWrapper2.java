@@ -22,7 +22,6 @@ public class SurrogateWrapper2 extends Problem {
 	
 	//max evaluations, the current number of evaluation and the used method
 	private int maxEvaluations;
-	private int numberOfEval;
 	private int method;
 	private int populationSize;
 	
@@ -64,7 +63,6 @@ public class SurrogateWrapper2 extends Problem {
 		this.populationSize = populationSize;
 		this.maxEvaluations = maxEvaluations;
 		this.method = 1;
-		numberOfEval = 1;
 		initialize();
 	}
 	
@@ -85,7 +83,7 @@ public class SurrogateWrapper2 extends Problem {
 		numberOfVariables_ = problem.getNumberOfVariables();
 		problemName_ = "SurrogateWrapper";
 		
-		numberOfEval = 1;
+		numberOfEval_ = 0;
 
 		realSolutions = new SolutionSet(maxEvaluations);
 		surrogateOF1 = new Surrogate();
@@ -149,15 +147,15 @@ public class SurrogateWrapper2 extends Problem {
 		double sol1, sol2;
 		
 		//evaluating the last 10% with the real problem
-		if(numberOfEval >= maxEvaluations - maxEvaluations * 0.1) {
+		if(numberOfEval_ >= maxEvaluations - maxEvaluations * 0.1) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
-		} else if(numberOfEval <= numberOfInitialSolutions) { //create the initial training set of the surrogates
+		} else if(numberOfEval_ <= numberOfInitialSolutions) { //create the initial training set of the surrogates
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 			surrogateOF1.fillTrainSet(0, solution);
 			surrogateOF2.fillTrainSet(1, solution);
-			if(numberOfEval == numberOfInitialSolutions) {
+			if(numberOfEval_ == numberOfInitialSolutions) {
 				System.out.println(numberOfInitialSolutions + " initial solutions are evaluated...");
 			}
 		} else {   
@@ -227,16 +225,16 @@ public class SurrogateWrapper2 extends Problem {
 						computeCounter = modelInitCounter;
 					}
 				}
+				roundSolutions.clear();
 			}
-			roundSolutions.clear();
 		}
-		numberOfEval++;
+		numberOfEval_++;
 	}
 	
 	public void useMethod2(Solution solution) throws JMException {
 		double sol1, sol2;
 		
-		if(numberOfEval >= maxEvaluations - maxEvaluations*0.1) {
+		if(numberOfEval_ >= maxEvaluations - maxEvaluations*0.1) {
 	    	problem.evaluate(solution);
 	    	realSolutions.add(solution);
 	    } else if(realCounter > 0) {
@@ -324,21 +322,21 @@ public class SurrogateWrapper2 extends Problem {
 		    	}
 	    	}
 	    }
-		numberOfEval++;
+		numberOfEval_++;
 	}
 	
 	public void useMethod3(Solution solution) throws JMException {
 		int dominanceFlag;
 		
-		if(numberOfEval <= populationSize/2) {
+		if(numberOfEval_ <= populationSize/2) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 			//save 20% to the train set
-			if((numberOfEval%2) == 0) {
+			if((numberOfEval_%2) == 0) {
 				surrogateOF1.fillTrainSet(0, solution);
 				surrogateOF2.fillTrainSet(1, solution);
 			}
-			if(numberOfEval == populationSize/4)
+			if(numberOfEval_ == populationSize/4)
 				System.out.println("50% of the initial population has been finished...");
 		} else {
 			if(offSprings.size() < 1) {
@@ -371,11 +369,11 @@ public class SurrogateWrapper2 extends Problem {
 				offSprings = new SolutionSet(2);
 			}		
 		}
-		numberOfEval++;
+		numberOfEval_++;
 	}
 
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval <= trainSetSize*2) {
+		if(numberOfEval_ <= trainSetSize*2) {
 			if(solutionsToCompare.size() < 1) {
 				problem.evaluate(solution);
 				solutionsToCompare.add(solution);
@@ -386,12 +384,12 @@ public class SurrogateWrapper2 extends Problem {
 				solutionsToCompare = new SolutionSet(2);
 			}
 		} else {
-			if(numberOfEval % 100 == 0)
+			if(numberOfEval_ % 100 == 0)
 				System.out.println("Number of eval % 100 = 0!");
 			else 
 				System.out.println("Test");
 		}	
-		numberOfEval++;
+		numberOfEval_++;
 	}
 	
 	public Problem getProblem() {

@@ -47,6 +47,11 @@ public abstract class Problem implements Serializable {
   protected Surrogate classifyingSurrogate;
   
   /**
+   * The actual number of done evaluations
+   */
+  protected int numberOfEval_;
+  
+  /**
    * Stores the number of variables of the problem
    */
   protected int numberOfVariables_ ;
@@ -263,5 +268,13 @@ public abstract class Problem implements Serializable {
 
 	public void setClassifyingSurrogate(Surrogate classifyingSurrogate) {
 		this.classifyingSurrogate = classifyingSurrogate;
+	}
+
+	public int getNumberOfEval_() {
+		return numberOfEval_;
+	}
+
+	public void setNumberOfEval_(int numberOfEval_) {
+		this.numberOfEval_ = numberOfEval_;
 	}
 } // Problem
