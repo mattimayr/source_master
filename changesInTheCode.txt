@@ -10,7 +10,10 @@
 
 -Wrapper class for transparent integration within jMetal
 
--added numberOfEval_ to Problem.java (getter and setter also)
+-added a mechanism for automatic testing (no longer manual names to add)
+-Ranking is now done by using the flags of the surrogate
+-surrogate changed for the classification
+-NSGAIITime is able to terminate after a given time
 
 
 

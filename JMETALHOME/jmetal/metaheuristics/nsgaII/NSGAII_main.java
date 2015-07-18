@@ -46,6 +46,8 @@ import java.util.HashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+
 /** 
  * Class to configure and execute the NSGA-II algorithm.  
  *     
@@ -85,6 +87,8 @@ public class NSGAII_main {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
+    int maxEvaluations = 10000;
+    int populationSize = 1000;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -116,8 +120,8 @@ public class NSGAII_main {
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",1000);
-    algorithm.setInputParameter("maxEvaluations", 10000);
+    algorithm.setInputParameter("populationSize",populationSize);
+    algorithm.setInputParameter("maxEvaluations", maxEvaluations);
     
     // Mutation and Crossover for Real codification 
     parameters = new HashMap() ;
@@ -150,7 +154,7 @@ public class NSGAII_main {
     Ranking rank = new Ranking(population);
     SolutionSet ranked = new SolutionSet(population.size());
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_Problem_10000");
+    ranked.printObjectivesToFile(getObjectiveFileName(maxEvaluations));
        
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -174,4 +178,9 @@ public class NSGAII_main {
     indicators = new QualityIndicator(problem, "RANK0_Problem_10000");
     logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
+  
+  private static String getObjectiveFileName(int maxEvaluations) { 
+	String fileName = "RANK0_Problem_" + maxEvaluations;
+	return fileName;
+  }
 } // NSGAII_main

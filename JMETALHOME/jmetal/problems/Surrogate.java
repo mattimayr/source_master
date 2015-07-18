@@ -31,14 +31,17 @@ public class Surrogate {
 	
 	private SolutionSet realSolutions;
 
-	private Instances classifiedSolutions; 
+	private SolutionSet solutionsToClassify;
+	private Map<Integer, Integer> classifiedSolutions;
 	private DominanceComparator comperator;
 	
 	private int solutionSize;
+	private int keyOfMap;
 	
 	public Surrogate() {
 		nnModel = new MultilayerPerceptron();
 		linearModel = new LinearRegression();
+		keyOfMap = 0;
 	}
 	
 	/**
@@ -112,6 +115,9 @@ public class Surrogate {
 				distribution = nnModel.distributionForInstance(currentInstance);
 				flag = getFlag(distribution);
 				
+				classifiedSolutions.put(keyOfMap, flag);
+				keyOfMap += 2;
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -160,6 +166,10 @@ public class Surrogate {
 		comperator = new DominanceComparator();
 		if(trainSet == null) {				
 			flag = comperator.compare(solution1, solution2);
+			classifiedSolutions = new HashMap<Integer, Integer>();
+			
+			classifiedSolutions.put(keyOfMap, flag);
+			keyOfMap += 2;
 			
 			//create x attributes for the solutions
 			FastVector attributes = new FastVector((solution1.numberOfVariables() + solution2.numberOfVariables())-1);
@@ -188,7 +198,6 @@ public class Surrogate {
 			System.out.println(currentInstance);
 			//set the class value of the data set to the dominance flag
 			trainSet.setClassIndex(currentInstance.numAttributes() - 1);
-			System.out.println(currentInstance.classAttribute().name());
 			
 			//set the dominance flag 
 			currentInstance.setValue(currentInstance.classAttribute(), Integer.toString(flag));
@@ -196,6 +205,9 @@ public class Surrogate {
 			System.out.println(trainSet);	
 		} else {			
 			flag = comperator.compare(solution1, solution2);
+			
+			classifiedSolutions.put(keyOfMap, flag);
+			keyOfMap += 2;
 
 			currentInstance = new Instance(instanceSize);
 			currentInstance.setDataset(trainSet);
@@ -204,7 +216,6 @@ public class Surrogate {
 			trainSet.setClassIndex(currentInstance.numAttributes() - 1);
 			currentInstance.setValue(currentInstance.classAttribute(), Integer.toString(flag));
 			trainSet.add(currentInstance);
-			System.out.println(trainSet);
 		}
 	}
 	
@@ -304,9 +315,12 @@ public class Surrogate {
 		this.realSolutions = null;
 	}
 	
-	public void emptyClassfiedSolutions() {
-		for(int i = 0; i < classifiedSolutions.numInstances(); i++)
-			this.classifiedSolutions.delete(i);
+	public Map<Integer, Integer> getClassifiedSolutions() {
+		if(classifiedSolutions == null) {
+			return null;
+		} else {
+		return classifiedSolutions;
+		} 
 	}
 	
 	public int getFlag(double[] distribution) {

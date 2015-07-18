@@ -22,6 +22,7 @@ public class SurrogateWrapper2 extends Problem {
 	
 	//max evaluations, the current number of evaluation and the used method
 	private int maxEvaluations;
+	private int numberOfEval;
 	private int method;
 	private int populationSize;
 	
@@ -94,7 +95,7 @@ public class SurrogateWrapper2 extends Problem {
 			case 1:
 				modelInitCounter = 20;
 				computeCounter = modelInitCounter;
-				percentOfSolutionComparisms = 20; //if 0 the last solution will be taken, if 1 the best will be taken
+				percentOfSolutionComparisms = 10; //if 0 the last solution will be taken, if 1 the best will be taken
 				epsilon = 0.5;
 				roundSolutions = new SolutionSet(computeCounter);
 				break;
@@ -110,6 +111,7 @@ public class SurrogateWrapper2 extends Problem {
 				break;
 			case 3:
 				comparator = new DominanceComparator();
+				trainSetSize = 20;
 				offSprings = new SolutionSet(2);
 				break;
 			case 4:
@@ -327,17 +329,17 @@ public class SurrogateWrapper2 extends Problem {
 	
 	public void useMethod3(Solution solution) throws JMException {
 		int dominanceFlag;
-		
-		if(numberOfEval_ <= populationSize/2) {
+		if(numberOfEval == populationSize/2)
+			System.out.println("50% of the initial population has been finished!");
+		if(numberOfEval_ < populationSize) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
-			//save 20% to the train set
-			if((numberOfEval_%2) == 0) {
+			//save 10% to the train set
+			if((numberOfEval_%10) == 0) {
+				System.out.println("Filling into trainSet...");
 				surrogateOF1.fillTrainSet(0, solution);
 				surrogateOF2.fillTrainSet(1, solution);
 			}
-			if(numberOfEval_ == populationSize/4)
-				System.out.println("50% of the initial population has been finished...");
 		} else {
 			if(offSprings.size() < 1) {
 				evaluateAndSetWithTheModel(solution);
@@ -373,23 +375,33 @@ public class SurrogateWrapper2 extends Problem {
 	}
 
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval_ <= trainSetSize*2) {
+		if(numberOfEval < trainSetSize) {
+			if(numberOfEval == 0)
+				System.out.println("Filling TrainSet for the classification...");
 			if(solutionsToCompare.size() < 1) {
 				problem.evaluate(solution);
+				realSolutions.add(solution);
 				solutionsToCompare.add(solution);
 			} else {
 				problem.evaluate(solution);
+				realSolutions.add(solution);
 				solutionsToCompare.add(solution);
 				classifyingSurrogate.fillClassifyingTrainSet(solutionsToCompare.get(0), solutionsToCompare.get(1));
 				solutionsToCompare = new SolutionSet(2);
 			}
 		} else {
-			if(numberOfEval_ % 100 == 0)
-				System.out.println("Number of eval % 100 = 0!");
-			else 
-				System.out.println("Test");
-		}	
-		numberOfEval_++;
+			if(solutionsToCompare.size() < 1) {
+				solutionsToCompare.add(solution);
+				realSolutions.add(solution);
+			}
+			else {
+				solutionsToCompare.add(solution);
+				realSolutions.add(solution);
+				classifyingSurrogate.useClassifier(solutionsToCompare.get(0), solutionsToCompare.get(1));
+				solutionsToCompare = new SolutionSet(2);
+			}
+				
+		}		
 	}
 	
 	public Problem getProblem() {
@@ -408,6 +420,14 @@ public class SurrogateWrapper2 extends Problem {
 		this.realSolutions = realSolutions;
 	}
 	
+	public int getMethod() {
+		return method;
+	}
+
+	public void setMethod(int method) {
+		this.method = method;
+	}
+
 	public void evaluateAndSetWithTheModel(Solution solution) {
 		double sol1, sol2;
 		

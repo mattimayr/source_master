@@ -116,7 +116,7 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 1, populationSize);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 3, populationSize);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
@@ -155,10 +155,18 @@ public class NSGAII_main_surrogate {
     SolutionSet realSolutions = new SolutionSet(maxEvaluations);
     realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
-    Ranking rank = new Ranking(realSolutions);
     SolutionSet ranked = new SolutionSet(maxEvaluations);
-    ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_SM1M_10000");
+	if(sw.getMethod() != 4) {
+		Ranking rank = new Ranking(realSolutions);
+		ranked = rank.getSubfront(0);
+		ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+	} else {
+		System.out.println("Evaluating the solutions...");
+		for(int i = 0; i < population.size(); i++) {
+			problem.evaluate(population.get(i));
+		}
+		population.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+	}
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
@@ -187,6 +195,30 @@ public class NSGAII_main_surrogate {
     
     logger_.info("Quality indicators") ;
     indicators = new QualityIndicator(problem, "RANK0_Problem_10000");
-    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
+	if(sw.getMethod() != 4)
+		logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
+	else
+		logger_.info("Hypervolume: " + indicators.getHypervolume(population));
   } //main
+  
+  private static String getObjectiveFileName(int method, int maxEvaluations) { 
+	String fileName = "";
+	switch(method) {
+		case 1:
+			fileName = "RANK0_SM1x_" + maxEvaluations;
+			return fileName;
+		case 2: 
+			fileName = "RANK0_SM2_" + maxEvaluations;
+			return fileName;
+		case 3: 
+			fileName = "RANK0_SM3_" + maxEvaluations;
+			return fileName;
+		case 4: 
+			fileName = "RANK0_SM4_" + maxEvaluations;
+			return fileName;	
+		default: 
+			fileName = "RANK0_Problem_" + maxEvaluations;
+			return fileName;
+	}
+  }
 } // NSGAII_main
