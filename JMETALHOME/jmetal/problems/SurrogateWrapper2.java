@@ -22,7 +22,6 @@ public class SurrogateWrapper2 extends Problem {
 	
 	//max evaluations, the current number of evaluation and the used method
 	private int maxEvaluations;
-	private int numberOfEval;
 	private int method;
 	private int populationSize;
 	
@@ -95,7 +94,7 @@ public class SurrogateWrapper2 extends Problem {
 			case 1:
 				modelInitCounter = 20;
 				computeCounter = modelInitCounter;
-				percentOfSolutionComparisms = 10; //if 0 the last solution will be taken, if 1 the best will be taken
+				percentOfSolutionComparisms = 0; //if 0 the last solution will be taken, if 1 the best will be taken
 				epsilon = 0.5;
 				roundSolutions = new SolutionSet(computeCounter);
 				break;
@@ -111,7 +110,6 @@ public class SurrogateWrapper2 extends Problem {
 				break;
 			case 3:
 				comparator = new DominanceComparator();
-				trainSetSize = 20;
 				offSprings = new SolutionSet(2);
 				break;
 			case 4:
@@ -329,9 +327,9 @@ public class SurrogateWrapper2 extends Problem {
 	
 	public void useMethod3(Solution solution) throws JMException {
 		int dominanceFlag;
-		if(numberOfEval == populationSize/2)
+		if(numberOfEval_ == populationSize/4)
 			System.out.println("50% of the initial population has been finished!");
-		if(numberOfEval_ < populationSize) {
+		if(numberOfEval_ < populationSize/2) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 			//save 10% to the train set
@@ -375,8 +373,8 @@ public class SurrogateWrapper2 extends Problem {
 	}
 
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval < trainSetSize) {
-			if(numberOfEval == 0)
+		if(numberOfEval_ < trainSetSize) {
+			if(numberOfEval_ == 0)
 				System.out.println("Filling TrainSet for the classification...");
 			if(solutionsToCompare.size() < 1) {
 				problem.evaluate(solution);
@@ -401,7 +399,8 @@ public class SurrogateWrapper2 extends Problem {
 				solutionsToCompare = new SolutionSet(2);
 			}
 				
-		}		
+		}
+		numberOfEval_++;
 	}
 	
 	public Problem getProblem() {

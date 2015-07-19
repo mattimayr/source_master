@@ -1,3 +1,0 @@
-set term png
-set output "NSGAII_Comparism_Time"
-plot "RANK0_Problem_20MIN", "RANK0_SM1L_20MIN","RANK0_SM1M_20MIN", "RANK0_SM2_20MIN", "RANK0_SM3_20MIN"

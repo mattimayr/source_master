@@ -41,6 +41,7 @@ public class Surrogate {
 	public Surrogate() {
 		nnModel = new MultilayerPerceptron();
 		linearModel = new LinearRegression();
+		realSolutions = new SolutionSet(100000);
 		keyOfMap = 0;
 	}
 	
@@ -104,6 +105,8 @@ public class Surrogate {
 			nnModel = new MultilayerPerceptron();
 		} else {
 			try {
+				realSolutions.add(solution1);
+				realSolutions.add(solution2);
 				nnModel.setAutoBuild(true);
 				nnModel.setOptions(Utils.splitOptions("-L 0.5 -M 0.3 -N 100 -V 0 -S 0 -E 20 -H 4"));
 				nnModel.buildClassifier(trainSet);
@@ -138,7 +141,7 @@ public class Surrogate {
 			}
 			//create new attribute for the objective function and create the data set
 			attributes.addElement(new Attribute("OF"));
-			trainSet = new Instances("Data", attributes, 10000);
+			trainSet = new Instances("Data", attributes, 100000);
 			currentInstance = new Instance(solution.numberOfVariables() + 1);
 			currentInstance.setDataset(trainSet);
 			//fill the currentInstance with the decision variable values
@@ -164,6 +167,8 @@ public class Surrogate {
 		int flag = 0;
 		int instanceSize = solution1.numberOfVariables() + solution2.numberOfVariables() + 1;
 		comperator = new DominanceComparator();
+		realSolutions.add(solution1);
+		realSolutions.add(solution2);
 		if(trainSet == null) {				
 			flag = comperator.compare(solution1, solution2);
 			classifiedSolutions = new HashMap<Integer, Integer>();
@@ -190,19 +195,18 @@ public class Surrogate {
 			//add the dominance flag to the trainset attributes
 			attributes.addElement(dominanceFlag);
 			
-			trainSet = new Instances("Data", attributes, 10000);
+			trainSet = new Instances("Data", attributes, 100000);
 			currentInstance = new Instance(instanceSize);
 			currentInstance.setDataset(trainSet);
 			
 			fillXAttributesForClassification(currentInstance, solution1, solution2);
-			System.out.println(currentInstance);
 			//set the class value of the data set to the dominance flag
 			trainSet.setClassIndex(currentInstance.numAttributes() - 1);
 			
 			//set the dominance flag 
 			currentInstance.setValue(currentInstance.classAttribute(), Integer.toString(flag));
-			trainSet.add(currentInstance);	
-			System.out.println(trainSet);	
+			System.out.println(currentInstance);
+			trainSet.add(currentInstance);		
 		} else {			
 			flag = comperator.compare(solution1, solution2);
 			
@@ -306,7 +310,7 @@ public class Surrogate {
 
 	public void addRealSolution(Solution solution) {
 		if(realSolutions == null) {
-			realSolutions =  new SolutionSet(10000); // TODO!!!
+			realSolutions =  new SolutionSet(100000); // TODO!!!
 		}
 		this.realSolutions.add(solution);
 	}
@@ -329,7 +333,7 @@ public class Surrogate {
 		for(int i = -1; i < 1; i++) {
 			if(distribution[i+2] > max) {
 				max = distribution[i+2];
-				flag = i;
+				flag = i+1;
 			}	
 		}
 		return flag;

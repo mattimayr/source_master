@@ -116,7 +116,7 @@ public class NSGAII_main {
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new NSGAII(problem);
+    algorithm = new NSGAIITime(problem);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
@@ -180,7 +180,7 @@ public class NSGAII_main {
   } //main
   
   private static String getObjectiveFileName(int maxEvaluations) { 
-	String fileName = "RANK0_Problem_" + maxEvaluations;
+	String fileName = "RANK0_Problem_" + "20Min";
 	return fileName;
   }
 } // NSGAII_main

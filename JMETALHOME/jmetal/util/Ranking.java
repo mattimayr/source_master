@@ -217,14 +217,14 @@ public class Ranking {
 		  iDominate[p] = new LinkedList<Integer>();
 		  dominateMe[p] = 0;
 		}
-		
+		int d = 0;
 		Map<Integer, Integer> classifiedSolutions = surrogate.getClassifiedSolutions();
 		int q = 0;
 		for(int p = 0; p < (solutionSet_.size()-1); p+=2) {
 			q = p+1;
 			flagDominate = classifiedSolutions.get(p);
 			if (flagDominate == 0) {
-			  
+				d++; 
 			}
 			if (flagDominate == -1)
 			{
@@ -245,7 +245,6 @@ public class Ranking {
 			solutionSet_.get(p).setRank(0);
 		  }
 		}    
-    
 		//Obtain the rest of fronts
 		int i = 0;
 		Iterator<Integer> it1, it2 ; // Iterators
@@ -272,7 +271,7 @@ public class Ranking {
 		  ranking_[j] = new SolutionSet(front[j].size());
 		  it1 = front[j].iterator();
 		  while (it1.hasNext()) {
-					ranking_[j].add(solutionSet.get(it1.next()));
+				ranking_[j].add(solutionSet_.get(it1.next()));
 		  }
 		}
     } else {

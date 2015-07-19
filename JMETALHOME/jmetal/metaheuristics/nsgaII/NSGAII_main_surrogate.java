@@ -90,6 +90,7 @@ public class NSGAII_main_surrogate {
     QualityIndicator indicators ; // Object to get quality indicators
     int maxEvaluations = 10000;
     int populationSize = 1000;
+    int time = 0;
     
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -116,7 +117,7 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 3, populationSize);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
@@ -159,13 +160,23 @@ public class NSGAII_main_surrogate {
 	if(sw.getMethod() != 4) {
 		Ranking rank = new Ranking(realSolutions);
 		ranked = rank.getSubfront(0);
-		ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
 	} else {
+		System.out.println("Size: " + population.size());
 		System.out.println("Evaluating the solutions...");
 		for(int i = 0; i < population.size(); i++) {
 			problem.evaluate(population.get(i));
 		}
-		population.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		Ranking rank = new Ranking(population);
+		ranked = rank.getSubfront(0);
+		System.out.println("Size: " + ranked.size());
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
 	}
     
 //    realSolutions.printObjectivesToFile("POPULATION");
@@ -195,10 +206,8 @@ public class NSGAII_main_surrogate {
     
     logger_.info("Quality indicators") ;
     indicators = new QualityIndicator(problem, "RANK0_Problem_10000");
-	if(sw.getMethod() != 4)
-		logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
-	else
-		logger_.info("Hypervolume: " + indicators.getHypervolume(population));
+	logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
+
   } //main
   
   private static String getObjectiveFileName(int method, int maxEvaluations) { 
@@ -221,4 +230,25 @@ public class NSGAII_main_surrogate {
 			return fileName;
 	}
   }
+  
+  private static String getObjectiveFileNameTime(int method, int time) { 
+		String fileName = "";
+		switch(method) {
+			case 1:
+				fileName = "RANK0_SM1x_" + time + "Min";
+				return fileName;
+			case 2: 
+				fileName = "RANK0_SM2_" + time + "Min";
+				return fileName;
+			case 3: 
+				fileName = "RANK0_SM3_" + time + "Min";
+				return fileName;
+			case 4: 
+				fileName = "RANK0_SM4_" + time + "Min";
+				return fileName;	
+			default: 
+				fileName = "RANK0_Problem_" + time + "Min";
+				return fileName;
+		}
+	  }
 } // NSGAII_main

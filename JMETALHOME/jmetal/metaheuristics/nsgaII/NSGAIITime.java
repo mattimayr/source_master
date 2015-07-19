@@ -135,8 +135,9 @@ public class NSGAIITime extends Algorithm {
         else {
         	break;
         }
+        System.out.println("NSGAII: " + evaluations);
       } // for
-
+      System.out.println("NSGAII: " + evaluations);
       // Create the solutionSet union of solutionSet and offSpring
       union = ((SolutionSet) population).union(offspringPopulation);
 
