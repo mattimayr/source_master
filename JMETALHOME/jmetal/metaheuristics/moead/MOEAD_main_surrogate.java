@@ -30,6 +30,7 @@ import jmetal.operators.mutation.MutationFactory;
 import jmetal.problems.EBEs;
 import jmetal.problems.Kursawe;
 import jmetal.problems.ProblemFactory;
+import jmetal.problems.SurrogateWrapper2;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
@@ -71,6 +72,9 @@ public class MOEAD_main_surrogate {
     Operator  mutation  ;         // Mutation operator
      
     QualityIndicator indicators ; // Object to get quality indicators
+	int populationSize = 1000;
+	int maxEvaluations = 10000;
+	int time = 0;
 
     HashMap  parameters ; // Operator parameters
 
@@ -100,12 +104,13 @@ public class MOEAD_main_surrogate {
       //problem = new OKA2("Real") ;
     } // else
 
-    algorithm = new MOEAD(problem);
+	SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 1, populationSize);
+    algorithm = new MOEAD(sw);
     //algorithm = new MOEAD_DRA(problem);
     
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",100);
-    algorithm.setInputParameter("maxEvaluations",1000);
+    algorithm.setInputParameter("populationSize", populationSize);
+    algorithm.setInputParameter("maxEvaluations", maxEvaluations);
     
     // Directory with the files containing the weight vectors used in 
     // Q. Zhang,  W. Liu,  and H Li, The Performance of a New Version of MOEA/D 
@@ -140,10 +145,32 @@ public class MOEAD_main_surrogate {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
-    Ranking rank = new Ranking(population);
-    SolutionSet ranked = new SolutionSet(1000);
-    ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_Problem1000");
+	
+	SolutionSet realSolutions = new SolutionSet(maxEvaluations);
+    realSolutions = sw.getRealSolutions();
+    System.out.println("Size: " + realSolutions.size());
+    SolutionSet ranked = new SolutionSet(maxEvaluations);
+	if(sw.getMethod() != 4) {
+		Ranking rank = new Ranking(realSolutions);
+		ranked = rank.getSubfront(0);
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
+	} else {
+		System.out.println("Size: " + population.size());
+		System.out.println("Evaluating the solutions...");
+		for(int i = 0; i < population.size(); i++) {
+			problem.evaluate(population.get(i));
+		}
+		Ranking rank = new Ranking(population);
+		ranked = rank.getSubfront(0);
+		System.out.println("Size: " + ranked.size());
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
+	}
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -159,6 +186,52 @@ public class MOEAD_main_surrogate {
       logger_.info("GD         : " + indicators.getGD(population)) ;
       logger_.info("IGD        : " + indicators.getIGD(population)) ;
       logger_.info("Spread     : " + indicators.getSpread(population)) ;
-    } // if          
+    } // if 
+
+	logger_.info("Quality indicators") ;
+    indicators = new QualityIndicator(problem, "RANK0_MOEAD_Problem_10000");   
+	logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));	
   } //main
+  
+  private static String getObjectiveFileName(int method, int maxEvaluations) { 
+	String fileName = "";
+	switch(method) {
+		case 1:
+			fileName = "RANK0_MOEAD_SM1x_" + maxEvaluations;
+			return fileName;
+		case 2: 
+			fileName = "RANK0_MOEAD_SM2_" + maxEvaluations;
+			return fileName;
+		case 3: 
+			fileName = "RANK0_MOEAD_SM3_" + maxEvaluations;
+			return fileName;
+		case 4: 
+			fileName = "RANK0_MOEAD_SM4_" + maxEvaluations;
+			return fileName;	
+		default: 
+			fileName = "RANK0_MOEAD_Problem_" + maxEvaluations;
+			return fileName;
+	}
+  }
+  
+  private static String getObjectiveFileNameTime(int method, int time) { 
+		String fileName = "";
+		switch(method) {
+			case 1:
+				fileName = "RANK0_MOEAD_SM1x_" + time + "Min";
+				return fileName;
+			case 2: 
+				fileName = "RANK0_MOEAD_SM2_" + time + "Min";
+				return fileName;
+			case 3: 
+				fileName = "RANK0_MOEAD_SM3_" + time + "Min";
+				return fileName;
+			case 4: 
+				fileName = "RANK0_MOEAD_SM4_" + time + "Min";
+				return fileName;	
+			default: 
+				fileName = "RANK0_MOEAD_Problem_" + time + "Min";
+				return fileName;
+		}
+	}
 } // MOEAD_main

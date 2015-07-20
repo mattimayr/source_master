@@ -118,17 +118,20 @@ public class MOEAD extends Algorithm {
     // STEP 1. Initialization
     // STEP 1.1. Compute euclidean distances between weight vectors and find T
     initUniformWeight();
+    System.out.println("Uniform weight initialization done...");
     //for (int i = 0; i < 300; i++)
    // 	System.out.println(lambda_[i][0] + " " + lambda_[i][1]) ;
     
     initNeighborhood();
-
+    System.out.println("Neighborhood initialization done...");
+    
     // STEP 1.2. Initialize population
     initPopulation();
-
+    System.out.println("Population initialization done...");
+    
     // STEP 1.3. Initialize z_
     initIdealPoint();
-
+    System.out.println("Initialization done...");
     // STEP 2. Update
     do {
       int[] permutation = new int[populationSize_];
@@ -177,6 +180,7 @@ public class MOEAD extends Algorithm {
         // STEP 2.5. Update of solutions
         updateProblem(child, n, type);
       } // for 
+      System.out.println("MOEAD: " + evaluations_);
     } while (evaluations_ < maxEvaluations);
 
     return population_;
@@ -187,7 +191,7 @@ public class MOEAD extends Algorithm {
    * initUniformWeight
    */
   public void initUniformWeight() {
-    if ((problem_.getNumberOfObjectives() == 2) && (populationSize_ <= 300)) {
+    if ((problem_.getNumberOfObjectives() == 2) && (populationSize_ <= 1000)) {
       for (int n = 0; n < populationSize_; n++) {
         double a = 1.0 * n / (populationSize_ - 1);
         lambda_[n][0] = a;
