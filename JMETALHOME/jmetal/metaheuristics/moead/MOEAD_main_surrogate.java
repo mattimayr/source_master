@@ -104,7 +104,7 @@ public class MOEAD_main_surrogate {
       //problem = new OKA2("Real") ;
     } // else
 
-	SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 1, populationSize);
+	SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
     algorithm = new MOEAD(sw);
     //algorithm = new MOEAD_DRA(problem);
     
