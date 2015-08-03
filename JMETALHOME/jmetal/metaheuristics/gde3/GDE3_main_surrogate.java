@@ -29,6 +29,7 @@ import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
 import jmetal.problems.Kursawe;
 import jmetal.problems.ProblemFactory;
+import jmetal.problems.SurrogateWrapper2;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
@@ -65,6 +66,9 @@ public class GDE3_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
+	int maxEvaluations = 10000;
+    int populationSize = 1000;
+    int time = 0;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -91,11 +95,12 @@ public class GDE3_main_surrogate {
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new GDE3(problem);
+	SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 3, populationSize);
+    algorithm = new GDE3(sw);
     
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",100);
-    algorithm.setInputParameter("maxIterations",10);
+    algorithm.setInputParameter("populationSize", populationSize);
+    algorithm.setInputParameter("maxIterations", maxEvaluations);
     
     // Crossover operator 
     parameters = new HashMap() ;
@@ -114,10 +119,32 @@ public class GDE3_main_surrogate {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
-    Ranking rank = new Ranking(population);
-    SolutionSet ranked = new SolutionSet(1000);
-    ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_Problem1000");
+    
+	SolutionSet realSolutions = new SolutionSet(maxEvaluations);
+    realSolutions = sw.getRealSolutions();
+    System.out.println("Size: " + realSolutions.size());
+    SolutionSet ranked = new SolutionSet(maxEvaluations);
+	if(sw.getMethod() != 4) {
+		Ranking rank = new Ranking(realSolutions);
+		ranked = rank.getSubfront(0);
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
+	} else {
+		System.out.println("Size: " + population.size());
+		System.out.println("Evaluating the solutions...");
+		for(int i = 0; i < population.size(); i++) {
+			problem.evaluate(population.get(i));
+		}
+		Ranking rank = new Ranking(population);
+		ranked = rank.getSubfront(0);
+		System.out.println("Size: " + ranked.size());
+		if(time == 0)
+			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		else 
+			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
+	}
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -134,5 +161,51 @@ public class GDE3_main_surrogate {
       logger_.info("Spread     : " + indicators.getSpread(population)) ;
       logger_.info("Epsilon    : " + indicators.getEpsilon(population)) ;  
     } // if        
+	
+	logger_.info("Quality indicators") ;
+    indicators = new QualityIndicator(problem, "RANK0_GDE3_Problem_10000");
+	logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   }//main
+  
+  private static String getObjectiveFileName(int method, int maxEvaluations) { 
+	String fileName = "";
+	switch(method) {
+		case 1:
+			fileName = "RANK0_GDE3_SM1x_" + maxEvaluations;
+			return fileName;
+		case 2: 
+			fileName = "RANK0_GDE3_SM2_" + maxEvaluations;
+			return fileName;
+		case 3: 
+			fileName = "RANK0_GDE3_SM3_" + maxEvaluations;
+			return fileName;
+		case 4: 
+			fileName = "RANK0_GDE3_SM4_" + maxEvaluations;
+			return fileName;	
+		default: 
+			fileName = "RANK0_GDE3_Problem_" + maxEvaluations;
+			return fileName;
+	}
+  }
+  
+  private static String getObjectiveFileNameTime(int method, int time) { 
+	String fileName = "";
+	switch(method) {
+		case 1:
+			fileName = "RANK0_GDE3_SM1x_" + time + "Min";
+			return fileName;
+		case 2: 
+			fileName = "RANK0_GDE3_SM2_" + time + "Min";
+			return fileName;
+		case 3: 
+			fileName = "RANK0_GDE3_SM3_" + time + "Min";
+			return fileName;
+		case 4: 
+			fileName = "RANK0_GDE3_SM4_" + time + "Min";
+			return fileName;	
+		default: 
+			fileName = "RANK0_GDE3_Problem_" + time + "Min";
+			return fileName;
+	}
+  }
 } // GDE3_main

@@ -93,7 +93,7 @@ public class GDE3 extends Algorithm {
     } //for       
   
     // Generations ...
-    while (iterations < maxIterations) {
+    while (evaluations < maxIterations) {
       // Create the offSpring solutionSet      
       offspringPopulation  = new SolutionSet(populationSize * 2);        
 
@@ -124,7 +124,8 @@ public class GDE3 extends Algorithm {
           offspringPopulation.add(child) ;
           offspringPopulation.add(population.get(i)) ;
         } // else
-      } // for           
+      } // for 
+      System.out.println("GDE: " + iterations);
 
       // Ranking the offspring population
       Ranking ranking = new Ranking(offspringPopulation);                        

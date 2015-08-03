@@ -160,8 +160,8 @@ public class SurrogateWrapper2 extends Problem {
 			}
 		} else {   
 			// use model to compute new solutions  	
-			sol1 = surrogateOF1.useNeuralNetwork(solution);
-			sol2 = surrogateOF2.useNeuralNetwork(solution);
+			sol1 = surrogateOF1.useLinearRegression(solution);
+			sol2 = surrogateOF2.useLinearRegression(solution);
 			solution.setObjective(0, sol1);
 			solution.setObjective(1, sol2);
 			roundSolutions.add(solution);

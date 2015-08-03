@@ -26,11 +26,13 @@ import jmetal.core.Problem;
 import jmetal.core.SolutionSet;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.selection.SelectionFactory;
+import jmetal.problems.EBEs;
 import jmetal.problems.Kursawe;
 import jmetal.problems.ProblemFactory;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
 import jmetal.util.JMException;
+import jmetal.util.Ranking;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -63,6 +65,9 @@ public class GDE3_main {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
+	int populationSize = 1000;
+	int maxEvaluations = 10000;
+	int time = 0;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -80,7 +85,8 @@ public class GDE3_main {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-      problem = new Kursawe("Real", 3); 
+		problem = new EBEs("Real");
+      //problem = new Kursawe("Real", 3); 
       //problem = new Water("Real");
       //problem = new ZDT1("ArrayReal", 100);
       //problem = new ConstrEx("Real");
@@ -91,8 +97,8 @@ public class GDE3_main {
     algorithm = new GDE3(problem);
     
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",100);
-    algorithm.setInputParameter("maxIterations",250);
+    algorithm.setInputParameter("populationSize", populationSize);
+    algorithm.setInputParameter("maxIterations", maxEvaluations);
     
     // Crossover operator 
     parameters = new HashMap() ;
@@ -111,6 +117,14 @@ public class GDE3_main {
     long initTime = System.currentTimeMillis();
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
+	
+	Ranking rank = new Ranking(population);
+    SolutionSet ranked = new SolutionSet(population.size());
+    ranked = rank.getSubfront(0);
+    if(time != 0)
+		ranked.printObjectivesToFile(getObjectiveFileNameTime(time));
+	else 
+		ranked.printObjectivesToFile(getObjectiveFileName(maxEvaluations));
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -126,6 +140,20 @@ public class GDE3_main {
       logger_.info("IGD        : " + indicators.getIGD(population)) ;
       logger_.info("Spread     : " + indicators.getSpread(population)) ;
       logger_.info("Epsilon    : " + indicators.getEpsilon(population)) ;  
-    } // if        
+    } // if
+
+	logger_.info("Quality indicators") ;
+    indicators = new QualityIndicator(problem, "RANK0_GDE3_Problem_10000");
+    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));        
   }//main
+  
+  private static String getObjectiveFileName(int maxEvaluations) { 
+	String fileName = "RANK0_GDE3_Problem_" + maxEvaluations;
+	return fileName;
+  }
+  
+  private static String getObjectiveFileNameTime(int time) { 
+	String fileName = "RANK0_GDE3_Problem_" + "20Min";
+	return fileName;
+  }
 } // GDE3_main
