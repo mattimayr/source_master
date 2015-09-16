@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  *                  April 2009)
  */ 
 
-public class NSGAII_main_surrogate {
+public class NSGAII_main_surrogateApproach2 {
   public static Logger      logger_ ;      // Logger object
   public static FileHandler fileHandler_ ; // FileHandler object
 
@@ -88,9 +88,23 @@ public class NSGAII_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 1000;
-    int populationSize = 100;
-    int time = 0;
+	
+	int maxEvaluations = 10000;
+    int populationSize = 1000;
+	int time = 0;
+	
+	int modelInitCounter = 20;
+	int realInitCounter = 5;
+    
+	
+	if(args.length > 0 && args.length < 5) {
+		maxEvaluations = Integer.parseInt(args[0]);
+		populationSize = Integer.parseInt(args[1]);
+		modelInitCounter = Integer.parseInt(args[2]);
+		realInitCounter = Integer.parseInt(args[3]);
+    } else {
+		System.out.println("Usage: java NSGAII_main_surrogateApproach2 maxEvaluations populationsSize modelInitCounter realInitCounter");
+	}
     
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
@@ -98,26 +112,17 @@ public class NSGAII_main_surrogate {
     logger_.addHandler(fileHandler_) ;
         
     indicators = null ;
-    if (args.length == 1) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-    } // if
-    else if (args.length == 2) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-      indicators = new QualityIndicator(problem, args[1]) ;
-    } // if
-    else { // Default problem
-    	problem = new EBEs("Real");
-      //problem = new Kursawe("Real", 3);
-      //problem = new Kursawe("BinaryReal", 3);
-      //problem = new Water("Real");
-    	//problem = new ZDT3("ArrayReal", 30);
-      //problem = new ConstrEx("Real");
-      //problem = new DTLZ1("Real");
-      //problem = new OKA2("Real") ;
-    } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
+	
+	problem = new EBEs("Real");
+	//problem = new Kursawe("Real", 3);
+	//problem = new Kursawe("BinaryReal", 3);
+	//problem = new Water("Real");
+	//problem = new ZDT3("ArrayReal", 30);
+	//problem = new ConstrEx("Real");
+	//problem = new DTLZ1("Real");
+	//problem = new OKA2("Real") ;
+	
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, populationSize, modelInitCounter, realInitCounter);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
@@ -157,14 +162,13 @@ public class NSGAII_main_surrogate {
     realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
     SolutionSet ranked = new SolutionSet(maxEvaluations);
-
+	
 	Ranking rank = new Ranking(realSolutions);
 	ranked = rank.getSubfront(0);
 	if(time == 0)
-		ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
+		ranked.printObjectivesToFile(getObjectiveFileName(maxEvaluations, populationSize, modelInitCounter, realInitCounter, estimatedTime));
 	else 
-		ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
-
+		ranked.printObjectivesToFile(getObjectiveFileNameTime(time, populationSize, modelInitCounter, realInitCounter));
     
 //    realSolutions.printObjectivesToFile("POPULATION");
 // 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
@@ -197,45 +201,15 @@ public class NSGAII_main_surrogate {
 
   } //main
   
-  private static String getObjectiveFileName(int method, int maxEvaluations) { 
+  private static String getObjectiveFileName(int maxEvaluations, int populationSize, int modelInitCounter, int realInitCounter, long executionTime) { 
 	String fileName = "";
-	switch(method) {
-		case 1:
-			fileName = "RANK0_SM1x_" + maxEvaluations;
-			return fileName;
-		case 2: 
-			fileName = "RANK0_SM2_" + maxEvaluations;
-			return fileName;
-		case 3: 
-			fileName = "RANK0_SM3_" + maxEvaluations;
-			return fileName;
-		case 4: 
-			fileName = "RANK0_SM4_" + maxEvaluations;
-			return fileName;	
-		default: 
-			fileName = "RANK0_Problem_" + maxEvaluations;
-			return fileName;
-	}
+	fileName = "RANK0_NSGAII_SM2_" + maxEvaluations + "_" + populationSize + "_" + modelInitCounter + "_" + realInitCounter + "_" + executionTime + "ms";
+	return fileName;
   }
   
-  private static String getObjectiveFileNameTime(int method, int time) { 
-		String fileName = "";
-		switch(method) {
-			case 1:
-				fileName = "RANK0_SM1x_" + time + "Min";
-				return fileName;
-			case 2: 
-				fileName = "RANK0_SM2_" + time + "Min";
-				return fileName;
-			case 3: 
-				fileName = "RANK0_SM3_" + time + "Min";
-				return fileName;
-			case 4: 
-				fileName = "RANK0_SM4_" + time + "Min";
-				return fileName;	
-			default: 
-				fileName = "RANK0_Problem_" + time + "Min";
-				return fileName;
-		}
-	  }
+  private static String getObjectiveFileNameTime(int time, int populationSize, int modelInitCounter, int realInitCounter) { 
+	String fileName = "";
+	fileName = "RANK0_NSGAII_SM2_" + time + "Min_" + populationSize + "_" + modelInitCounter + "_" + realInitCounter;
+	return fileName;
+  }
 } // NSGAII_main

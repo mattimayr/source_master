@@ -61,7 +61,7 @@ public class NSGAIITime extends Algorithm {
 	long initTime;
 	long currentTime;
 	long elapsedTime = 0;
-	long terminationTime = 10; //minutes
+	long terminationTime = 20; //minutes
 
     QualityIndicator indicators; // QualityIndicator object
     int requiredEvaluations; // Use in the example of use of the

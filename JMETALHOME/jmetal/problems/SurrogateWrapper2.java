@@ -24,11 +24,14 @@ public class SurrogateWrapper2 extends Problem {
 	private int maxEvaluations;
 	private int method;
 	private int populationSize;
+	private boolean methodComponentsInitialized;
 	
 	//components for method 1
+	private int numberOfInitialSolutions;
 	private int computeCounter;
 	private int percentOfSolutionComparisms;
 	private double epsilon;
+	private int machineLearningMethod;
 	private SolutionSet roundSolutions;
 	
 	//components for method 2
@@ -42,12 +45,19 @@ public class SurrogateWrapper2 extends Problem {
 	boolean useOF2Neural;
 	
 	//components for method 3
+	private int trainSetSizeMethod3;
 	private SolutionSet offSprings;
 	private DominanceComparator comparator;
 	
 	//components for method 4
-	private int trainSetSize;
+	private int trainSetSizeMethod4;
 	private SolutionSet solutionsToCompare;
+	
+	//components for tests with time
+	long initTime;
+	long currentTime;
+	long elapsedTime = 0;
+	long terminationTime = 20;
 	
 	//constructors
 	public SurrogateWrapper2(Problem problem, int populationSize) {
@@ -74,6 +84,53 @@ public class SurrogateWrapper2 extends Problem {
 		initialize();
 	}
 	
+	//constructor for surrogate method 1
+	public SurrogateWrapper2(Problem problem, int maxEvaluations, int populationSize, int numberOfInitialSolutions, int modelInitCounter, double epsilon, int machineLearningMethod) {
+		this.problem = problem;
+		this.method = 1;
+		
+		this.populationSize = populationSize;
+		this.maxEvaluations = maxEvaluations;
+		this.numberOfInitialSolutions = numberOfInitialSolutions;
+		this.modelInitCounter = modelInitCounter;
+		this.epsilon = epsilon;
+		this.machineLearningMethod = machineLearningMethod;
+		this.methodComponentsInitialized = true;
+		initialize();
+	}
+	
+	//constructor for surrogate method 2
+	public SurrogateWrapper2(Problem problem, int maxEvaluations, int populationSize, int modelInitCounter, int realInitCounter) {
+		this.problem = problem;
+		this.method = 2;
+		
+		this.populationSize = populationSize;
+		this.maxEvaluations = maxEvaluations;
+		this.modelInitCounter = modelInitCounter;
+		this.realInitCounter = realInitCounter;
+		this.methodComponentsInitialized = true;
+		initialize();
+	}
+		
+	//constructor for surrogate method 3
+	public SurrogateWrapper2(Problem problem, int method, int maxEvaluations, int populationSize, int trainSetSize, boolean dummy) {
+		this.problem = problem;
+		if(method == 3) {
+			this.method = method;
+			this.trainSetSizeMethod3 = trainSetSize;
+		} else if(method == 4) {
+			this.method = method;
+			this.trainSetSizeMethod4 = trainSetSize;
+		} else {
+			System.out.println("False usage of the constructor; only usable with method 3 or method 4");
+		}
+		
+		this.populationSize = populationSize;
+		this.maxEvaluations = maxEvaluations;
+		this.methodComponentsInitialized = true;
+		initialize();
+	}
+	
 	//initialize method to initialize the needed components
 	private void initialize() {
 		//delegate problem variables
@@ -89,18 +146,26 @@ public class SurrogateWrapper2 extends Problem {
 		surrogateOF1 = new Surrogate();
 		surrogateOF2 = new Surrogate();
 		
+		initTime = System.currentTimeMillis();
+		
 		//initialize the needed components depending on the used method
 		switch(method) {
 			case 1:
-				modelInitCounter = 20;
+				if(methodComponentsInitialized == false) {
+					numberOfInitialSolutions = 5;
+					modelInitCounter = 20;
+					epsilon = 0.5;
+					machineLearningMethod = 0; //0 = LR, 1 = MLP
+				} 
 				computeCounter = modelInitCounter;
 				percentOfSolutionComparisms = 0; //if 0 the last solution will be taken, if 1 the best will be taken
-				epsilon = 0.5;
 				roundSolutions = new SolutionSet(computeCounter);
 				break;
 			case 2:
-				modelInitCounter = 20;
-				realInitCounter = 5;
+				if(methodComponentsInitialized == false) {
+					modelInitCounter = 20;
+					realInitCounter = 5;
+				}
 				realCounter = realInitCounter;
 				modelCounter = modelInitCounter;
 				useOF1Linear = false;
@@ -109,12 +174,17 @@ public class SurrogateWrapper2 extends Problem {
 				useOF2Neural = false;
 				break;
 			case 3:
+				if(methodComponentsInitialized == false) {
+					trainSetSizeMethod3 = 50;
+				}	
 				comparator = new DominanceComparator();
 				offSprings = new SolutionSet(2);
 				break;
 			case 4:
+				if(methodComponentsInitialized == false) {
+					trainSetSizeMethod4 = 50;
+				}
 				classifyingSurrogate = new Surrogate();
-				trainSetSize = 10;
 				solutionsToCompare = new SolutionSet(2);
 				break;
 		}			
@@ -146,8 +216,12 @@ public class SurrogateWrapper2 extends Problem {
 		double[] fx  = new double[solution.getNumberOfObjectives()];
 		double sol1, sol2;
 		
+		currentTime = System.currentTimeMillis();
+		//calculate elapsed time and convert into minutes
+		elapsedTime = (currentTime - initTime)/1000/60;
+		
 		//evaluating the last 10% with the real problem
-		if(numberOfEval_ >= maxEvaluations - maxEvaluations * 0.1) {
+		if(numberOfEval_ >= maxEvaluations - maxEvaluations * 0.1 || elapsedTime >= terminationTime - terminationTime * 0.1) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 		} else if(numberOfEval_ <= numberOfInitialSolutions) { //create the initial training set of the surrogates
@@ -229,10 +303,18 @@ public class SurrogateWrapper2 extends Problem {
 			}
 		}
 		numberOfEval_++;
+		currentTime = System.currentTimeMillis();
+		
+		//calculate elapsed time and convert into minutes
+		elapsedTime = (currentTime - initTime)/1000/60;
 	}
 	
 	public void useMethod2(Solution solution) throws JMException {
 		double sol1, sol2;
+		
+		currentTime = System.currentTimeMillis();
+		//calculate elapsed time and convert into minutes
+		elapsedTime = (currentTime - initTime)/1000/60;
 		
 		if(numberOfEval_ >= maxEvaluations - maxEvaluations*0.1) {
 	    	problem.evaluate(solution);
@@ -323,13 +405,15 @@ public class SurrogateWrapper2 extends Problem {
 	    	}
 	    }
 		numberOfEval_++;
+		currentTime = System.currentTimeMillis();
+		
+		//calculate elapsed time and convert into minutes
+		elapsedTime = (currentTime - initTime)/1000/60;
 	}
 	
 	public void useMethod3(Solution solution) throws JMException {
 		int dominanceFlag;
-		if(numberOfEval_ == populationSize/4)
-			System.out.println("50% of the initial population has been finished!");
-		if(numberOfEval_ < populationSize/2) {
+		if(numberOfEval_ < trainSetSizeMethod3) {
 			problem.evaluate(solution);
 			realSolutions.add(solution);
 			//save 10% to the train set
@@ -371,9 +455,55 @@ public class SurrogateWrapper2 extends Problem {
 		}
 		numberOfEval_++;
 	}
-
+	
 	public void useMethod4(Solution solution) throws JMException {
-		if(numberOfEval_ < trainSetSize) {
+		int dominanceFlag = 0;
+		if(numberOfEval_ < trainSetSizeMethod4) {
+			if(numberOfEval_ == 0)
+				System.out.println("Filling TrainSet for the classification...");
+			if(solutionsToCompare.size() < 1) {
+				problem.evaluate(solution);
+				realSolutions.add(solution);
+				solutionsToCompare.add(solution);
+			} else {
+				problem.evaluate(solution);
+				realSolutions.add(solution);
+				solutionsToCompare.add(solution);
+				classifyingSurrogate.fillClassifyingTrainSet(solutionsToCompare.get(0), solutionsToCompare.get(1));
+				solutionsToCompare = new SolutionSet(2);
+			}
+		} else {
+			if(solutionsToCompare.size() < 1) {
+				solutionsToCompare.add(solution);
+			}
+			else {
+				solutionsToCompare.add(solution);
+				dominanceFlag = classifyingSurrogate.useClassifier(solutionsToCompare.get(0), solutionsToCompare.get(1));
+				switch(dominanceFlag) {
+				case -1:
+					problem.evaluate(solutionsToCompare.get(0));
+					realSolutions.add(solutionsToCompare.get(0));
+					System.out.println("Dominance = -1");
+					solutionsToCompare = new SolutionSet(2);
+					break;
+				case 1:
+					problem.evaluate(solutionsToCompare.get(1));
+					realSolutions.add(solutionsToCompare.get(1));
+					System.out.println("Dominance = 1");
+					solutionsToCompare = new SolutionSet(2);
+					break;
+				}	
+			}
+		}
+		numberOfEval_++;
+		currentTime = System.currentTimeMillis();
+		
+		//calculate elapsed time and convert into minutes
+		elapsedTime = (currentTime - initTime)/1000/60;
+	}
+
+	public void useMethod5(Solution solution) throws JMException {
+		if(numberOfEval_ < trainSetSizeMethod4) {
 			if(numberOfEval_ == 0)
 				System.out.println("Filling TrainSet for the classification...");
 			if(solutionsToCompare.size() < 1) {

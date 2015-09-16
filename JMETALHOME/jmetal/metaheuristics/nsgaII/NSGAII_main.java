@@ -88,7 +88,7 @@ public class NSGAII_main {
     
     QualityIndicator indicators ; // Object to get quality indicators
     int maxEvaluations = 10000;
-    int populationSize = 1000;
+    int populationSize = 100;
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
