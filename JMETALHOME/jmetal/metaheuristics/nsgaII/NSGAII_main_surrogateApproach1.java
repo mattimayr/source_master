@@ -198,10 +198,6 @@ public class NSGAII_main_surrogateApproach1 {
       int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
       logger_.info("Speed      : " + evaluations + " evaluations") ;      
     } // if
-    
-    logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0_Problem_10000");
-	logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
 
   } //main
   

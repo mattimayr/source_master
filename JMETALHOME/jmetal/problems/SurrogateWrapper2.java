@@ -484,15 +484,21 @@ public class SurrogateWrapper2 extends Problem {
 					problem.evaluate(solutionsToCompare.get(0));
 					realSolutions.add(solutionsToCompare.get(0));
 					System.out.println("Dominance = -1");
-					solutionsToCompare = new SolutionSet(2);
+					break;
+				case 0:
+					problem.evaluate(solutionsToCompare.get(0));
+					realSolutions.add(solutionsToCompare.get(0));
+					problem.evaluate(solutionsToCompare.get(1));
+					realSolutions.add(solutionsToCompare.get(1));
+					System.out.println("Dominance = 0");
 					break;
 				case 1:
 					problem.evaluate(solutionsToCompare.get(1));
 					realSolutions.add(solutionsToCompare.get(1));
 					System.out.println("Dominance = 1");
-					solutionsToCompare = new SolutionSet(2);
 					break;
 				}	
+				solutionsToCompare = new SolutionSet(2);
 			}
 		}
 		numberOfEval_++;

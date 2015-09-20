@@ -108,16 +108,16 @@ public class NSGAII_main_surrogate {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	problem = new EBEs("Real");
+    	//problem = new EBEs("Real");
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
-    	//problem = new ZDT3("ArrayReal", 30);
+    	problem = new ZDT3("Real", 30);
       //problem = new ConstrEx("Real");
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 4, populationSize);
+    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 1, populationSize);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 

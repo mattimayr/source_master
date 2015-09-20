@@ -33,6 +33,7 @@ import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
 import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.Kursawe;
+import jmetal.problems.OKA2;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.ZDT.ZDT1;
 import jmetal.problems.ZDT.ZDT3;
@@ -110,13 +111,13 @@ public class NSGAII_main {
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
-      //problem = new ZDT3("ArrayReal", 30);
+      //problem = new ZDT3("Real", 30);
       //problem = new ConstrEx("Real");
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
     
-    algorithm = new NSGAIITime(problem);
+    algorithm = new NSGAII(problem);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
