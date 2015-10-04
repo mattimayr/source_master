@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  *   and NSGA-II". IEEE Trans on Evolutionary Computation, vol. 12,  no 2,  
  *   pp 284-302, April/2009.  
  */
-public class MOEAD_main_surrogate {
+public class MOEAD_main_surrogateApproach2 {
   public static Logger      logger_ ;      // Logger object
   public static FileHandler fileHandler_ ; // FileHandler object
 
@@ -75,6 +75,19 @@ public class MOEAD_main_surrogate {
 	int populationSize = 1000;
 	int maxEvaluations = 10000;
 	int time = 0;
+	
+	int modelInitCounter = 20;
+	int realInitCounter = 5;
+    
+	
+	if(args.length > 0 && args.length < 5) {
+		maxEvaluations = Integer.parseInt(args[0]);
+		populationSize = Integer.parseInt(args[1]);
+		modelInitCounter = Integer.parseInt(args[2]);
+		realInitCounter = Integer.parseInt(args[3]);
+    } else {
+		System.out.println("Usage: java MOEAD_main_surrogateApproach2 maxEvaluations populationsSize modelInitCounter realInitCounter");
+	}
 
     HashMap  parameters ; // Operator parameters
 
@@ -84,27 +97,18 @@ public class MOEAD_main_surrogate {
     logger_.addHandler(fileHandler_) ;
     
     indicators = null ;
-    if (args.length == 1) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-    } // if
-    else if (args.length == 2) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-      indicators = new QualityIndicator(problem, args[1]) ;
-    } // if
-    else { // Default problem
-    	problem = new EBEs("Real");
-      //problem = new Kursawe("Real", 3); 
-      //problem = new Kursawe("BinaryReal", 3);
-      //problem = new Water("Real");
-      //problem = new ZDT3("ArrayReal", 30);
-      //problem = new ConstrEx("Real");
-      //problem = new DTLZ1("Real");
-      //problem = new OKA2("Real") ;
-    } // else
-
-	SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, 4, populationSize);
+   
+	// Default problem
+	problem = new EBEs("Real");
+	//problem = new Kursawe("Real", 3); 
+	//problem = new Kursawe("BinaryReal", 3);
+	//problem = new Water("Real");
+	//problem = new ZDT3("ArrayReal", 30);
+	//problem = new ConstrEx("Real");
+	//problem = new DTLZ1("Real");
+	//problem = new OKA2("Real") ;
+	
+	SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, populationSize, modelInitCounter, realInitCounter);
     algorithm = new MOEAD(sw);
     //algorithm = new MOEAD_DRA(problem);
     
@@ -150,27 +154,13 @@ public class MOEAD_main_surrogate {
     realSolutions = sw.getRealSolutions();
     System.out.println("Size: " + realSolutions.size());
     SolutionSet ranked = new SolutionSet(maxEvaluations);
-	if(sw.getMethod() != 4) {
-		Ranking rank = new Ranking(realSolutions);
-		ranked = rank.getSubfront(0);
-		if(time == 0)
-			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
-		else 
-			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
-	} else {
-		System.out.println("Size: " + population.size());
-		System.out.println("Evaluating the solutions...");
-		for(int i = 0; i < population.size(); i++) {
-			problem.evaluate(population.get(i));
-		}
-		Ranking rank = new Ranking(population);
-		ranked = rank.getSubfront(0);
-		System.out.println("Size: " + ranked.size());
-		if(time == 0)
-			ranked.printObjectivesToFile(getObjectiveFileName(sw.getMethod(), maxEvaluations));
-		else 
-			ranked.printObjectivesToFile(getObjectiveFileNameTime(sw.getMethod(), time));
-	}
+	
+	Ranking rank = new Ranking(realSolutions);
+	ranked = rank.getSubfront(0);
+	if(time == 0)
+		ranked.printObjectivesToFile(getObjectiveFileName(maxEvaluations, populationSize, modelInitCounter, realInitCounter, estimatedTime));
+	else 
+		ranked.printObjectivesToFile(getObjectiveFileNameTime(time, populationSize, modelInitCounter, realInitCounter));
     
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
@@ -193,45 +183,15 @@ public class MOEAD_main_surrogate {
 	logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));	
   } //main
   
-  private static String getObjectiveFileName(int method, int maxEvaluations) { 
+   private static String getObjectiveFileName(int maxEvaluations, int populationSize, int modelInitCounter, int realInitCounter, long executionTime) { 
 	String fileName = "";
-	switch(method) {
-		case 1:
-			fileName = "RANK0_MOEAD_SM1x_" + maxEvaluations;
-			return fileName;
-		case 2: 
-			fileName = "RANK0_MOEAD_SM2_" + maxEvaluations;
-			return fileName;
-		case 3: 
-			fileName = "RANK0_MOEAD_SM3_" + maxEvaluations;
-			return fileName;
-		case 4: 
-			fileName = "RANK0_MOEAD_SM4_" + maxEvaluations;
-			return fileName;	
-		default: 
-			fileName = "RANK0_MOEAD_Problem_" + maxEvaluations;
-			return fileName;
-	}
+	fileName = "RANK0_MOEAD_SM2_" + maxEvaluations + "_" + populationSize + "_" + modelInitCounter + "_" + realInitCounter + "_" + executionTime + "ms";
+	return fileName;
   }
   
-  private static String getObjectiveFileNameTime(int method, int time) { 
-		String fileName = "";
-		switch(method) {
-			case 1:
-				fileName = "RANK0_MOEAD_SM1x_" + time + "Min";
-				return fileName;
-			case 2: 
-				fileName = "RANK0_MOEAD_SM2_" + time + "Min";
-				return fileName;
-			case 3: 
-				fileName = "RANK0_MOEAD_SM3_" + time + "Min";
-				return fileName;
-			case 4: 
-				fileName = "RANK0_MOEAD_SM4_" + time + "Min";
-				return fileName;	
-			default: 
-				fileName = "RANK0_MOEAD_Problem_" + time + "Min";
-				return fileName;
-		}
-	}
+  private static String getObjectiveFileNameTime(int time, int populationSize, int modelInitCounter, int realInitCounter) { 
+	String fileName = "";
+	fileName = "RANK0_MOEAD_SM2_" + time + "Min_" + populationSize + "_" + modelInitCounter + "_" + realInitCounter;
+	return fileName;
+  }
 } // MOEAD_main

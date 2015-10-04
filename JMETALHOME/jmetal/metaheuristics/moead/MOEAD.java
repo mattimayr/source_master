@@ -191,7 +191,7 @@ public class MOEAD extends Algorithm {
    * initUniformWeight
    */
   public void initUniformWeight() {
-    if ((problem_.getNumberOfObjectives() == 2) && (populationSize_ <= 1000)) {
+    if ((problem_.getNumberOfObjectives() == 2) && (populationSize_ <= 2000)) {
       for (int n = 0; n < populationSize_; n++) {
         double a = 1.0 * n / (populationSize_ - 1);
         lambda_[n][0] = a;

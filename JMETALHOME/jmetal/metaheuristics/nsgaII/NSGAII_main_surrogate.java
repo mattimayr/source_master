@@ -36,7 +36,7 @@ import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.EBEsSurrogateMethod2;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.SurrogateWrapper;
-import jmetal.problems.SurrogateWrapper2;
+import jmetal.problems.SurrogateWrapper;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
@@ -88,7 +88,7 @@ public class NSGAII_main_surrogate {
     HashMap  parameters ; // Operator parameters
     
     QualityIndicator indicators ; // Object to get quality indicators
-    int maxEvaluations = 1000;
+    int maxEvaluations = 10000;
     int populationSize = 100;
     int time = 0;
     
@@ -108,16 +108,16 @@ public class NSGAII_main_surrogate {
       indicators = new QualityIndicator(problem, args[1]) ;
     } // if
     else { // Default problem
-    	//problem = new EBEs("Real");
+    	problem = new EBEs("Real");
       //problem = new Kursawe("Real", 3);
       //problem = new Kursawe("BinaryReal", 3);
       //problem = new Water("Real");
-    	problem = new ZDT3("Real", 30);
+      //problem = new ZDT3("Real", 30);
       //problem = new ConstrEx("Real");
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, 1, populationSize);
+    SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, 3, populationSize);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 

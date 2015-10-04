@@ -36,7 +36,7 @@ import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.EBEsSurrogateMethod2;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.SurrogateWrapper;
-import jmetal.problems.SurrogateWrapper2;
+import jmetal.problems.SurrogateWrapper;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
@@ -122,7 +122,7 @@ public class NSGAII_main_surrogateApproach2 {
 	//problem = new DTLZ1("Real");
 	//problem = new OKA2("Real") ;
 	
-    SurrogateWrapper2 sw = new SurrogateWrapper2(problem, maxEvaluations, populationSize, modelInitCounter, realInitCounter);
+    SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, populationSize, modelInitCounter, realInitCounter);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
