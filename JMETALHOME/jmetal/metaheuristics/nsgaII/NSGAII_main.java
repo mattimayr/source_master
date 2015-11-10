@@ -31,7 +31,6 @@ import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
-import jmetal.problems.EBEsSurrogateMethod1;
 import jmetal.problems.Kursawe;
 import jmetal.problems.OKA2;
 import jmetal.problems.ProblemFactory;

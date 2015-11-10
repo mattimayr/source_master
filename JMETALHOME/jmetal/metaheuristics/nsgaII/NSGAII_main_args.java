@@ -24,7 +24,6 @@ package jmetal.metaheuristics.nsgaII;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
-import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.encodings.variable.Real;
 import jmetal.experiments.studies.BridgeStudy;
@@ -32,13 +31,13 @@ import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
-import jmetal.problems.EBEsSurrogateMethod1;
-import jmetal.problems.EBEsSurrogateMethod2;
+import jmetal.problems.Kursawe;
+import jmetal.problems.OKA2;
 import jmetal.problems.ProblemFactory;
+import jmetal.problems.ZDT.ZDT1;
 import jmetal.problems.ZDT.ZDT3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
-import jmetal.util.Distance;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
 
@@ -46,6 +45,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 /** 
  * Class to configure and execute the NSGA-II algorithm.  
@@ -58,7 +59,7 @@ import java.util.logging.Logger;
  *                  April 2009)
  */ 
 
-public class NSGAII_main_surrogate2 {
+public class NSGAII_main_args {
   public static Logger      logger_ ;      // Logger object
   public static FileHandler fileHandler_ ; // FileHandler object
 
@@ -77,50 +78,40 @@ public class NSGAII_main_surrogate2 {
                                   SecurityException, 
                                   IOException, 
                                   ClassNotFoundException {
-    Problem problem   ; // The problem to solve
+    Problem   problem   ; // The problem to solve
     Algorithm algorithm ; // The algorithm to use
     Operator  crossover ; // Crossover operator
     Operator  mutation  ; // Mutation operator
     Operator  selection ; // Selection operator
     
     HashMap  parameters ; // Operator parameters
-    
     QualityIndicator indicators ; // Object to get quality indicators
+	
     int maxEvaluations = 10000;
+    int populationSize = 100;
+	int time = 0;
+		
+	if(args.length > 0 && args.length < 3) {
+		maxEvaluations = Integer.parseInt(args[0]);
+		populationSize = Integer.parseInt(args[1]);
+    } else {
+		System.out.println("Usage: java NSGAII_main_args.java maxEvaluations populationsSize");
+	}
 
     // Logger object and file to store log messages
     logger_      = Configuration.logger_ ;
     fileHandler_ = new FileHandler("NSGAII_main.log"); 
     logger_.addHandler(fileHandler_) ;
-        
-    indicators = null ;
-    if (args.length == 1) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-    } // if
-    else if (args.length == 2) {
-      Object [] params = {"Real"};
-      problem = (new ProblemFactory()).getProblem(args[0],params);
-      indicators = new QualityIndicator(problem, args[1]) ;
-    } // if
-    else { // Default problem
-    	problem = new EBEsSurrogateMethod2("Real", maxEvaluations);
-      //problem = new Kursawe("Real", 3);
-      //problem = new Kursawe("BinaryReal", 3);
-      //problem = new Water("Real");
-    	//problem = new ZDT3("ArrayReal", 30);
-      //problem = new ConstrEx("Real");
-      //problem = new DTLZ1("Real");
-      //problem = new OKA2("Real") ;
-    } // else
-    
-    algorithm = new NSGAII_Surrogate(problem);
+
+	indicators = null;
+    problem = new EBEs("Real");
+    algorithm = new NSGAII(problem);
     //algorithm = new ssNSGAII(problem);
 
     // Algorithm parameters
-    algorithm.setInputParameter("populationSize",1000);
-    algorithm.setInputParameter("maxEvaluations",maxEvaluations);
-
+    algorithm.setInputParameter("populationSize",populationSize);
+    algorithm.setInputParameter("maxEvaluations", maxEvaluations);
+    
     // Mutation and Crossover for Real codification 
     parameters = new HashMap() ;
     parameters.put("probability", 0.9) ;
@@ -149,20 +140,14 @@ public class NSGAII_main_surrogate2 {
     SolutionSet population = algorithm.execute();
     long estimatedTime = System.currentTimeMillis() - initTime;
     
-    SolutionSet realSolutions = new SolutionSet(maxEvaluations);
-    realSolutions = problem.getRealSolutions();
-    Ranking rank = new Ranking(realSolutions);
-    SolutionSet ranked = new SolutionSet(maxEvaluations);
+    Ranking rank = new Ranking(population);
+    SolutionSet ranked = new SolutionSet(population.size());
     ranked = rank.getSubfront(0);
-    ranked.printObjectivesToFile("RANK0_NSSM2");
-
-    System.out.println("Number of Solutions " + realSolutions.size());
-  
-//    realSolutions.printObjectivesToFile("POPULATION");
-// 	for(int i = 0; i < rank.getNumberOfSubfronts(); i++){
-//    	rank.getSubfront(i).printObjectivesToFile("RANK" + i);
-//    }
-    
+    if(time != 0)
+		ranked.printObjectivesToFile(getObjectiveFileNameTime(time));
+	else 
+		ranked.printObjectivesToFile(getObjectiveFileName(maxEvaluations, populationSize));
+       
     // Result messages 
     logger_.info("Total execution time: "+estimatedTime + "ms");
     logger_.info("Variables values have been writen to file VAR");
@@ -181,9 +166,15 @@ public class NSGAII_main_surrogate2 {
       int evaluations = ((Integer)algorithm.getOutputParameter("evaluations")).intValue();
       logger_.info("Speed      : " + evaluations + " evaluations") ;      
     } // if
-    
-    logger_.info("Quality indicators") ;
-    indicators = new QualityIndicator(problem, "RANK0_Problem");
-    logger_.info("Hypervolume: " + indicators.getHypervolume(ranked));
   } //main
+  
+  private static String getObjectiveFileNameTime(int time) { 
+	String fileName = "RANK0_NSGAII_Problem_" + time + "Min";
+	return fileName;
+  }
+  
+  private static String getObjectiveFileName(int maxEvaluations, int populationSize) { 
+		String fileName = "RANK0_NSGAII_Problem_" + maxEvaluations + "_" + populationSize;
+		return fileName;
+	  }
 } // NSGAII_main

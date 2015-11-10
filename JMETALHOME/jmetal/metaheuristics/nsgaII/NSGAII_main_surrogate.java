@@ -24,23 +24,16 @@ package jmetal.metaheuristics.nsgaII;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
-import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.encodings.variable.Real;
-import jmetal.experiments.studies.BridgeStudy;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.EBEs;
-import jmetal.problems.EBEsSurrogateMethod1;
-import jmetal.problems.EBEsSurrogateMethod2;
 import jmetal.problems.ProblemFactory;
 import jmetal.problems.SurrogateWrapper;
-import jmetal.problems.SurrogateWrapper;
-import jmetal.problems.ZDT.ZDT3;
+import jmetal.problems.SurrogateWrapperTestAP3;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Configuration;
-import jmetal.util.Distance;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
 
@@ -117,7 +110,7 @@ public class NSGAII_main_surrogate {
       //problem = new DTLZ1("Real");
       //problem = new OKA2("Real") ;
     } // else
-    SurrogateWrapper sw = new SurrogateWrapper(problem, maxEvaluations, 3, populationSize);
+    SurrogateWrapper sw = new SurrogateWrapper(problem, 3, maxEvaluations, populationSize, 5, true);
     algorithm = new NSGAII(sw);
     //algorithm = new ssNSGAII(problem);
 
@@ -207,7 +200,7 @@ public class NSGAII_main_surrogate {
 			fileName = "RANK0_SM2_" + maxEvaluations;
 			return fileName;
 		case 3: 
-			fileName = "RANK0_SM3_" + maxEvaluations;
+			fileName = "RANK0_SM3TEST_" + maxEvaluations;
 			return fileName;
 		case 4: 
 			fileName = "RANK0_SM4_" + maxEvaluations;
