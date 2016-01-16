@@ -83,7 +83,7 @@ public class GDE3_main_args {
     
     indicators = null;
 	problem = new EBEs("Real");
-    algorithm = new GDE3(problem);
+    algorithm = new GDE3_PeriodicFronts(problem);
     
     // Algorithm parameters
     algorithm.setInputParameter("populationSize", populationSize);

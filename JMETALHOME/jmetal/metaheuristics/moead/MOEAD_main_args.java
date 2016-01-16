@@ -73,8 +73,8 @@ public class MOEAD_main_args {
 	HashMap  parameters ; // Operator parameters 
     QualityIndicator indicators ; // Object to get quality indicators
 	
-	int populationSize = 100;
-	int maxEvaluations = 10000;
+	int populationSize = 200;
+	int maxEvaluations = 20000;
 	int time = 0;
 	
 	if(args.length > 0 && args.length < 3) {
@@ -91,7 +91,7 @@ public class MOEAD_main_args {
 	
 	indicators = null;
 	problem = new EBEs("Real");
-    algorithm = new MOEAD(problem);
+    algorithm = new MOEAD_PeriodicFronts(problem);
     //algorithm = new MOEAD_DRA(problem);
     
     // Algorithm parameters
